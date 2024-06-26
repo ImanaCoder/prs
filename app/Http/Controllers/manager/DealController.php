@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Validator;
 class DealController extends Controller
 {
     public function getDealsForVerifier(Request $request){
-        $deals = Deal::with('deal')->latest();
+        $deals = Deal::with('payments')->latest();
 
         $clients = Client::get();
         $teams = Team::get();
@@ -46,11 +46,11 @@ class DealController extends Controller
 
         $deals = $deals->paginate(10);
 
-        return view("verifier.deals.list", compact('deals','teams','clients','sourceTypes'));
+        return view("verifier.deals", compact('deals','teams','clients','sourceTypes'));
     }
 
     public function index(Request $request){
-        $deals = Deal::with('deal')->where('user_id',Auth::id())->latest();
+        $deals = Deal::with('payments')->where('user_id',Auth::id())->latest();
         $clients = Client::get();
         $sourceTypes =  SourceType::get();
 
@@ -74,7 +74,7 @@ class DealController extends Controller
 
                 'client_id'=> 'required|exists:clients,id',
                 'name' => 'required',
-                'work_type' => 'required|date',
+                'work_type' => 'required',
                 'source_type_id' => 'required|exists:source_types,id',
                 'deal_value'=>'required|numeric',
                 'deal_date'=>'required|date',
@@ -111,8 +111,8 @@ class DealController extends Controller
                     $payment->save();
 
                     //Save Image Here
-                    if(!empty($request->image_id)){
-                        $tempImage = TempImage::find($request->image_id);
+                    if(!empty($request->receipt_id)){
+                        $tempImage = TempImage::find($request->receipt_id);
 
                         $extArray = explode('.',$tempImage->name);
                         $ext = last($extArray);
@@ -120,14 +120,14 @@ class DealController extends Controller
                         $newImageName = $payment->id.'.'.$ext;
 
                         $sPath = public_path() .'/temp/thumb/'. $tempImage->name;
-                        $dPath = 'payments/images/' . $newImageName;
+                        $dPath = 'payments/' . $newImageName;
                         File::copy($sPath, public_path('/storage/' . $dPath)); // Copy file to storage
 
                         // Move the files within the storage disk
                         Storage::move($dPath, $dPath); // Move original image
 
 
-                        $payment->image = $newImageName;
+                        $payment->receipt_path = $newImageName;
                         $payment->save();
                     }
                     session()->flash('success','Deal created successfully');
@@ -146,7 +146,7 @@ class DealController extends Controller
             $validator = Validator::make($request->all(), [
                 'client_id'=> 'required|exists:clients,id',
                 'name' => 'required',
-                'work_type' => 'required|date',
+                'work_type' => 'required',
                 'source_type_id' => 'required|exists:source_types,id',
                 'deal_value'=>'required|numeric',
                 'deal_date'=>'required|date',
@@ -157,7 +157,7 @@ class DealController extends Controller
             if ($validator->passes()){
                 $deal = Deal::create(
                     $request->only('client_id', 'name', 'work_type', 'remarks',
-            'source_type_id', 'deal_value', 'deal_date','due_date'
+                    'source_type_id', 'deal_value', 'deal_date','due_date'
                 ));
 
                 session()->flash('success','Deal created successfully');
@@ -204,7 +204,7 @@ class DealController extends Controller
         $validator = Validator::make($request->all(), [
             'client_id'=> 'required|exists:clients,id',
             'name' => 'required',
-            'work_type' => 'required|date',
+            'work_type' => 'required',
             'source_type_id' => 'required|exists:source_types,id',
             'deal_value'=>'required|numeric',
             'deal_date'=>'required|date',

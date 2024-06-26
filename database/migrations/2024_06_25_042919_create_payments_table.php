@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('payment_date');
             $table->double('payment_value');
             $table->string('remarks',500);
-            $table->string('payment_version');
+            $table->string('payment_version')->default('Original');
             $table->timestamps();
         });
     }

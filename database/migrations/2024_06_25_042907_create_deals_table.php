@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('deal_date')->nullable(); // Allow null for editing
             $table->timestamp('due_date')->nullable(); // Allow null for editing
             $table->string('remarks',500);
-            $table->string('deal_version');
+            $table->string('deal_version')->default('Original');
 
             $table->timestamps();
         });

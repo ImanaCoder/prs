@@ -51,8 +51,8 @@ class PaymentController extends Controller
             ));
 
             //Save Image Here
-            if(!empty($request->image_id)){
-                $tempImage = TempImage::find($request->image_id);
+            if(!empty($request->receipt_id)){
+                $tempImage = TempImage::find($request->receipt_id);
 
                 $extArray = explode('.',$tempImage->name);
                 $ext = last($extArray);
@@ -60,14 +60,14 @@ class PaymentController extends Controller
                 $newImageName = $payment->id.'.'.$ext;
 
                 $sPath = public_path() .'/temp/thumb/'. $tempImage->name;
-                $dPath = 'payments/images/' . $newImageName;
+                $dPath = 'payments/' . $newImageName;
                 File::copy($sPath, public_path('/storage/' . $dPath)); // Copy file to storage
 
                 // Move the files within the storage disk
                 Storage::move($dPath, $dPath); // Move original image
 
 
-                $payment->image = $newImageName;
+                $payment->receipt_path = $newImageName;
                 $payment->save();
             }
 
@@ -124,8 +124,8 @@ class PaymentController extends Controller
             $payment->save();
 
             //Save Image Here
-            if(!empty($request->image_id)){
-                $tempImage = TempImage::find($request->image_id);
+            if(!empty($request->receipt_id)){
+                $tempImage = TempImage::find($request->receipt_id);
 
                 $extArray = explode('.',$tempImage->name);
                 $ext = last($extArray);
@@ -133,14 +133,14 @@ class PaymentController extends Controller
                 $newImageName = $payment->id.'.'.$ext;
 
                 $sPath = public_path() .'/temp/thumb/'. $tempImage->name;
-                $dPath = 'payments/images/' . $newImageName;
+                $dPath = 'payments/' . $newImageName;
                 File::copy($sPath, public_path('/storage/' . $dPath)); // Copy file to storage
 
                 // Move the files within the storage disk
                 Storage::move($dPath, $dPath); // Move original image
 
 
-                $payment->image = $newImageName;
+                $payment->receipt_path = $newImageName;
                 $payment->save();
             }
 
@@ -196,16 +196,52 @@ class PaymentController extends Controller
                 'message' => 'Payment not found'
             ]);
         }
+        $validator = Validator::make($request->all(), [
+            'verification_remarks'=> 'required|max:255',
+            'status' => 'required',
+            'verification_receipt_id' => 'required',
 
-        $payment->verified_by_id=Auth::id();
-        $payment->verified_at = Carbon::now();
-        $payment->save();
-
-        session()->flash('success','Payment deleted successfully');
-        return response()->json([
-            'status' => true,
-            'message' => 'Payment deleted successfully'
         ]);
+
+        if ($validator->passes()) {
+
+            $payment->verified_by_id=Auth::id();
+            $payment->verified_at = Carbon::now();
+            $payment->verification_remarks = $request->verification_remarks;
+            $payment->save();
+
+            if(!empty($request->verification_receipt_id)){
+                $tempImage = TempImage::find($request->verification_receipt_id);
+
+                $extArray = explode('.',$tempImage->name);
+                $ext = last($extArray);
+
+                $newImageName = $payment->id.'.'.$ext;
+
+                $sPath = public_path() .'/temp/thumb/'. $tempImage->name;
+                $dPath = 'payments/verification-receipts/' . $newImageName;
+                
+                File::copy($sPath, public_path('/storage/' . $dPath)); // Copy file to storage
+
+                // Move the files within the storage disk
+                Storage::move($dPath, $dPath); // Move original image
+
+
+                $payment->verification_receipt_path = $newImageName;
+                $payment->save();
+            }
+
+            session()->flash('success','Payment deleted successfully');
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment deleted successfully'
+            ]);
+        }else{
+            return response()->json([
+                "status"=> false,
+                "errors"=> $validator->errors()
+            ]);
+        }
 
     }
 }

@@ -21,6 +21,19 @@
 
 		<link rel="stylesheet" href="{{asset('admin-assets/css/custom.css')}}">
         <link rel="stylesheet" href="{{ asset('admin-assets/css/datetimepicker.css') }}">
+        <style>
+            .btn{
+                font-size:12px;
+            }
+            h5{
+                font-size:16px;
+            }
+            .row{
+                margin-right:0px;
+                margin-left:0px;
+            }
+        </style>
+
 
 
 

@@ -18,9 +18,6 @@ class ClientController extends Controller
             }
         }
 
-
-
-
         $clients = $clients->paginate(10);
 
         return view("manager.clients.list", compact('clients'));
@@ -29,15 +26,16 @@ class ClientController extends Controller
 
     public function store(Request $request){
         $validator = Validator::make($request->all(), [
+            'user_id'=>'required',
             'name' => 'required',
             'email' => 'required|email',
-            'contact' => 'required|tel',
+            'contact' => 'required',
             'nationality' => 'required'
         ]);
 
         if ($validator->passes()){
             $client = Client::create(
-                $request->only('name', 'email', 'contact', 'nationality'
+                $request->only('name', 'email', 'contact', 'nationality','user_id'
             ));
 
 
@@ -82,7 +80,7 @@ class ClientController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'contact' => 'required|tel',
+            'contact' => 'required',
             'nationality' => 'required'
         ]);
 
@@ -90,7 +88,6 @@ class ClientController extends Controller
             $client->update(
                 $request->only('name', 'email', 'contact', 'nationality'
             ));
-            $client->client_version='Edited';
             $client->save();
 
 

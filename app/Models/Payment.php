@@ -13,7 +13,7 @@ class Payment extends Model
     protected $fillable = [
         'deal_id', 'receipt_path',
         'payment_date', 'payment_value',
-        'remarks', 'payment_version','status','verified_by_id','verified_at'
+        'remarks', 'payment_version','status','verified_by_id','verified_at','verification_remarks'
     ];
 
     // Relationships
