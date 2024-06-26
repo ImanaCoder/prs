@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
             Clients
         </h2>
     </x-slot>
@@ -14,47 +14,67 @@
                         <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addClient">Add Client</button>
                     </div>
 
-                    <div class="Clients-item">
-                      <div class="overflow-auto">
-                        <table class="table table-bordered">
-                          <thead class="thead-dark">
-                            <tr>
-                              <th>Id</th>
-                              <th>Client Name</th>
-                              <th>Nationality</th>
-                              <th>Contact </th>
-                              <th>Email</th>
-                              <th>Added Date</th>
-                              <th>Action</th>
+                    <div class="card">
+                        <form action="" method="get">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <button type="button" onclick="window.location.href='{{ route('clients.index') }}' " class="btn btn-default btn-sm">Reset</button>
+                                </div>
+                                <div class="card-tools">
+                                    <div class="input-group input-group" style="width: 250px;">
+                                        <input value="{{ Request::get('keyword') }}" type="text" name="keyword" class="form-control float-right" placeholder="Search" style="border-color:#ddd;">
 
-                            </tr>
-                          </thead>
-                          <tbody>
-                            @if ($clients->isNotEmpty())
+                                        <div class="input-group-append">
+                                          <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                          </button>
+                                        </div>
+                                      </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="card-body">
+                            <div class="overflow-auto">
+                              <table class="table table-bordered">
+                                <thead class="thead-light">
+                                  <tr>
+                                    <th>Id</th>
+                                    <th>Client Name</th>
+                                    <th>Nationality</th>
+                                    <th>Contact </th>
+                                    <th>Email</th>
+                                    <th>Added Date</th>
+                                    <th>Action</th>
 
-                            @foreach ($clients as $client)
-                            <tr>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @if ($clients->isNotEmpty())
 
-                                <td>{{ $client->id }}</td>
-                                <td>{{ $client->name }}</td>
-                                <td>{{ $client->nationality }}</td>
-                                <td>{{ $client->contact }}</td>
-                                <td>{{ $client->email }}</td>
-                                <td>{{ \Carbon\Carbon::parse($client->created_at)->format('jS F, Y h:i A') }}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editClient" onclick="editClient('{{ $client->id }}')" ><i class="fas fa-edit"></i></button>
-                                </td>
-                            </tr>
-                            @endforeach
-                            @endif
+                                  @foreach ($clients as $client)
+                                  <tr>
 
-                        </tbody>
+                                      <td>{{ $client->id }}</td>
+                                      <td>{{ $client->name }}</td>
+                                      <td>{{ $client->nationality }}</td>
+                                      <td>{{ $client->contact }}</td>
+                                      <td>{{ $client->email }}</td>
+                                      <td>{{ \Carbon\Carbon::parse($client->created_at)->format('jS F, Y h:i A') }}</td>
+                                      <td>
+                                          <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editClient" onclick="editClient('{{ $client->id }}')" ><i class="fas fa-edit"></i></button>
+                                      </td>
+                                  </tr>
+                                  @endforeach
+                                  @endif
 
-                        </table>
-                      </div>
+                              </tbody>
+
+                              </table>
+                            </div>
+                          </div>
                     </div>
 
-                  </div>
+                </div>
 
 
 

@@ -25,13 +25,22 @@
             .btn{
                 font-size:12px;
             }
-            h5{
-                font-size:16px;
+            h4,h5{
+                font-size:20px !important;
+                font-weight:700 !important;
             }
+
             .row{
                 margin-right:0px;
                 margin-left:0px;
             }
+
+            input{
+                font-size:12px !important;
+            }
+
+
+
         </style>
 
 
@@ -55,7 +64,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main style="font-size:12px;">
                 {{ $slot }}
             </main>
         </div>

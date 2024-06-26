@@ -14,6 +14,7 @@
                         <a href="{{ route('verifier.dashboard') }}">
                             <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                         </a>
+
                     @endrole
                     @role('sales_manager')
                         <a href="{{ route('manager.dashboard') }}">
@@ -46,8 +47,11 @@
                     @endrole
 
                     @role('verifier')
-                    <x-nav-link :href="route('verifier.dashboard')" :active="request()->routeIs('verifier.deals')">
+                    <x-nav-link :href="route('verifier.dashboard')" :active="request()->routeIs('verifier.dashboard')">
                         Deals
+                    </x-nav-link>
+                    <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
+                        Payments
                     </x-nav-link>
                     @endrole
 

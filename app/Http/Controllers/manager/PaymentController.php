@@ -32,7 +32,7 @@ class PaymentController extends Controller
 
         $payments = $payments->paginate(10);
 
-        return view("verifier.payments.list", compact('payments'));
+        return view("verifier.payments", compact('payments'));
     }
 
 
@@ -220,7 +220,7 @@ class PaymentController extends Controller
 
                 $sPath = public_path() .'/temp/thumb/'. $tempImage->name;
                 $dPath = 'payments/verification-receipts/' . $newImageName;
-                
+
                 File::copy($sPath, public_path('/storage/' . $dPath)); // Copy file to storage
 
                 // Move the files within the storage disk

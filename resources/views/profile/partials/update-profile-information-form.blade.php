@@ -1,6 +1,6 @@
-<section>
+<section style="font-size:12px;">
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="text-md font-medium text-gray-900 dark:text-gray-100">
             Profile Information
         </h2>
 

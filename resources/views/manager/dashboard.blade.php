@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
             Dashboard
         </h2>
     </x-slot>
@@ -84,8 +84,8 @@
                         </div>
                     </div>
                 </section>
-                
-        
+
+
                 <!-- Payment Activities -->
                 <section class="payment-activities">
                     <div class="card">
@@ -127,12 +127,12 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 </section>
-                
-                
-        
+
+
+
                 <!-- Additional Info -->
                 <section class="additional-info">
                     <div class="container">
@@ -156,8 +156,8 @@
                         </div>
                     </div>
                 </section>
-                
-                    
+
+
         </div>
     </div>
 </x-app-layout>

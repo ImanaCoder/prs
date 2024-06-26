@@ -60,8 +60,10 @@ Route::group(['middleware' => ['auth', 'role:verifier']], function () {
 
     });
 });
-Route::group(['middleware' => ['auth', 'role:sales_manager,verifier']], function () {
-    Route::get('/deals/{id}/edit', [DealController::class, 'edit'])->name('deals.edit');
+
+Route::group(['middleware' => ['auth', 'role:sales_manager|verifier']], function () {
+    Route::get('/payments/{id}/edit', [PaymentController::class,'edit'])->name('payments.edit');
+
 });
 
 
@@ -85,13 +87,14 @@ Route::group(['middleware' => ['auth', 'role:sales_manager']], function () {
         Route::get('/deals', [DealController::class,'index'])->name('deals.index');
         Route::get('/deals/create', [DealController::class,'create'])->name('deals.create');
         Route::post('/deals/store', [DealController::class,'store'])->name('deals.store');
+        Route::get('/deals/{id}/edit', [DealController::class, 'edit'])->name('deals.edit');
+
         Route::put('/deals/{id}', [DealController::class,'update'])->name('deals.update');
 
 
         //Payment routes
         Route::get('/payments/create', [PaymentController::class,'create'])->name('payments.create');
         Route::post('/payments/store', [PaymentController::class,'store'])->name('payments.store');
-        Route::get('/payments/{id}/edit', [PaymentController::class,'edit'])->name('payments.edit');
         Route::put('/payments/{id}', [PaymentController::class,'update'])->name('payments.update');
     });
 });

@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
             Deals
         </h2>
     </x-slot>
@@ -14,126 +14,146 @@
                         <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addModal">Add Deal</button>
                     </div>
 
-                    <div class="Deals-item">
-                      <div class="overflow-auto">
-                        <table class="table table-bordered">
-                          <thead class="thead-dark">
-                            <tr>
-                              <th>Id</th>
-                              <th>Deal Name</th>
-                              <th>Client</th>
-                              <th>Work Type</th>
-                              <th>Source Type</th>
-                              <th>Deal Date</th>
-                              <th>Deal Created</th>
-                              <th>Due Date</th>
+                    <div class="card">
+                        <form action="" method="get">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <button type="button" onclick="window.location.href='{{ route('verifier.dashboard') }}' " class="btn btn-default btn-sm">Reset</button>
+                                </div>
+                                <div class="card-tools">
+                                    <div class="input-group input-group" style="width: 250px;">
+                                        <input value="{{ Request::get('keyword') }}" type="text" name="keyword" class="form-control float-right" placeholder="Search" style="border-color:#ddd;">
 
-                              <th>Deal Version</th>
-                              <th>Deal Value</th>
-                              <th>Payments</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            @if ($deals->isNotEmpty())
+                                        <div class="input-group-append">
+                                          <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                          </button>
+                                        </div>
+                                      </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="card-body">
+                            <div class="overflow-auto">
+                              <table class="table table-bordered">
+                                <thead class="thead-light">
+                                  <tr>
+                                    <th>Id</th>
+                                    <th>Deal Name</th>
+                                    <th>Client</th>
+                                    <th>Work Type</th>
+                                    <th>Source Type</th>
+                                    <th>Deal Date</th>
+                                    <th>Deal Created</th>
+                                    <th>Due Date</th>
 
-                            @foreach ($deals as $deal)
+                                    <th>Deal Version</th>
+                                    <th>Deal Value</th>
+                                    <th>Payments</th>
+                                    <th>Action</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @if ($deals->isNotEmpty())
 
-                            <tr>
+                                  @foreach ($deals as $deal)
 
-                                    <td>{{ $deal->id }}</td>
-                                    <td>{{ $deal->name }}</td>
-                                    <td>{{ $deal->client->name }}</td>
-                                    <td>{{ $deal->work_type }}</td>
-                                    <td>{{ $deal->sourceType->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($deal->deal_date)->format('jS F, Y h:i A') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($deal->created_at)->format('jS F, Y h:i A') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($deal->due_date)->format('jS F, Y h:i A') }}</td>
-                                    <td>{{ $deal->version }}</td>
-                                    <td>{{ $deal->deal_value }}</td>
-                                    <td>
-                                        @if ($deal->payments != null)
-                                            @foreach ($deal->payments as $payment)
-                                                @if ($payment->status == 0)
-                                                    <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                @endif
-                                                @if ($payment->status == 1)
-                                                    <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                @endif
+                                  <tr>
 
-                                            @endforeach
+                                          <td>{{ $deal->id }}</td>
+                                          <td>{{ $deal->name }}</td>
+                                          <td>{{ $deal->client->name }}</td>
+                                          <td>{{ $deal->work_type }}</td>
+                                          <td>{{ $deal->sourceType->name }}</td>
+                                          <td>{{ \Carbon\Carbon::parse($deal->deal_date)->format('jS F, Y h:i A') }}</td>
+                                          <td>{{ \Carbon\Carbon::parse($deal->created_at)->format('jS F, Y h:i A') }}</td>
+                                          <td>{{ \Carbon\Carbon::parse($deal->due_date)->format('jS F, Y h:i A') }}</td>
+                                          <td>{{ $deal->version }}</td>
+                                          <td>{{ $deal->deal_value }}</td>
+                                          <td>
+                                              @if ($deal->payments != null)
+                                                  @foreach ($deal->payments as $payment)
+                                                      @if ($payment->status == 0)
+                                                          <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                          </svg>
+                                                      @endif
+                                                      @if ($payment->status == 1)
+                                                          <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                          </svg>
+                                                      @endif
 
-                                        @endif
+                                                  @endforeach
 
-                                    </td>
-                                    <td class="row gap-2">
+                                              @endif
 
-                                        @if ($deal->payments->isNotEmpty())
-                                            <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="fas fa-chevron-down"></i></button>
+                                          </td>
+                                          <td >
 
-                                        @endif
-                                    </td>
+                                              @if ($deal->payments->isNotEmpty())
+                                                  <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="fas fa-chevron-down"></i></button>
 
-                            </tr>
+                                              @endif
+                                          </td>
+
+                                  </tr>
 
 
 
-                            @if($deal->payments->isNotEmpty())
-                            <tr class="sub-table" style="display: none;background-color:rgb(203, 233, 175)">
-                                <td colspan="12">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead class="thead-light">
-                                                <tr>
-                                                    <th>Payment Date</th>
-                                                    <th>Amount</th>
-                                                    <th>Invoice</th>
-                                                    <th>Remarks</th>
-                                                    <th>Verified By</th>
-                                                    <th>Verified At</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($deal->payments as $payment)
+                                  @if($deal->payments->isNotEmpty())
+                                  <tr class="sub-table" style="display: none;background-color:rgb(228, 168, 131)">
+                                      <td colspan="12">
+                                          <div class="table-responsive">
+                                              <table class="table table-bordered">
+                                                  <thead >
+                                                      <tr>
+                                                          <th>Payment Date</th>
+                                                          <th>Amount</th>
+                                                          <th>Invoice</th>
+                                                          <th>Remarks</th>
+                                                          <th>Verified By</th>
+                                                          <th>Verified At</th>
+                                                          <th>Action</th>
+                                                      </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                      @foreach ($deal->payments as $payment)
 
-                                                    <tr>
+                                                          <tr>
 
-                                                        <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
-                                                        <td>{{ $payment->payment_value }}</td>
-                                                        <td>{{ $payment->receipt_path }}</td>
-                                                        <td>{{ $payment->remarks }}</td>
-                                                        <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
-                                                        <td>{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('jS F, Y h:i A') : "N/A" }}</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#approvePayment" onclick="approvePayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
+                                                              <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
+                                                              <td>{{ $payment->payment_value }}</td>
+                                                              <td>{{ $payment->receipt_path }}</td>
+                                                              <td>{{ $payment->remarks }}</td>
+                                                              <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
+                                                              <td>{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('jS F, Y h:i A') : "N/A" }}</td>
+                                                              <td>
+                                                                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#approvePayment" onclick="approvePayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
 
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
+                                                              </td>
+                                                          </tr>
+                                                      @endforeach
 
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endif
-                            @endforeach
-                            @endif
-                        </tbody>
+                                                  </tbody>
+                                              </table>
+                                          </div>
+                                      </td>
+                                  </tr>
+                                  @endif
+                                  @endforeach
+                                  @endif
+                              </tbody>
 
-                        </table>
-                      </div>
+                              </table>
+                            </div>
+                          </div>
                     </div>
 
                   </div>
 
-                  <div class="modal fade" id="approvePayment" tabindex="-1" role="dialog" aria-labelledby="approvePaymentLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document"> <!-- modal-lg for large modal -->
+                <div class="modal fade" id="approvePayment" tabindex="-1" role="dialog" aria-labelledby="approvePaymentLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="approvePaymentLabel">Approve Payment <span id="payment-id"></span></h5>
@@ -144,63 +164,49 @@
                             <form id="approvePaymentForm">
                                 <div class="modal-body">
                                     <div class="container mx-auto py-8">
-                                        <div class="flex justify-center col-md-12">
+                                        <div class=" col-md-12">
 
                                             <!-- Payment Section -->
-                                            < div class=" row w-full col-md-12 rounded-lg shadow-lg p-6">
+                                            <div class="row mt-3 w-full col-md-12 rounded-lg shadow-lg p-6">
                                                 <div class="form-group col-md-6">
-                                                    <label for="payment_id">Payment Id</label>
+                                                    <label for="payment_id">Payment Id</label><br>
                                                     <span id="payment_id"></span>
-                                                    <p></p>
-
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="payment_deal_id">Deal Id</label>
-                                                    <span id="payment_deal_id" ></span>
-
+                                                    <label for="payment_deal_id">Deal Id</label><br>
+                                                    <span id="payment_deal_id"></span>
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="payment_date">Payment Date</label>
-                                                    <span id="payment_date" ></span>
-
+                                                    <label for="payment_date">Payment Date</label><br>
+                                                    <span id="payment_date"></span>
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="payment_value">Amount</label>
-                                                    <span id="payment_value" ></span>
-
+                                                    <label for="payment_value">Amount</label><br>
+                                                    <span id="payment_value"></span>
                                                 </div>
-
-
                                                 <div class="form-group col-md-6">
-                                                    <label for="payment_remarks">Remarks</label>
+                                                    <label for="payment_remarks">Remarks</label><br>
                                                     <span id="payment_remarks"></span>
-
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <div class="d-flex justify-content-center align-items-center">
                                                         <img id="receipt_image_path" src="" alt="payment"/>
                                                     </div>
-
                                                 </div>
-
                                             </div>
-                                            < div class=" row w-full col-md-12 rounded-lg shadow-lg p-6">
+
+                                            <!-- Verification Section -->
+                                            <div class="row mt-3 w-full col-md-12 rounded-lg shadow-lg p-6">
                                                 <div class="form-group col-md-6 col-12">
                                                     <label for="status">Status</label>
                                                     <select id="status" name="status" class="form-control">
-                                                        <option value="0" >Rejected</option>
+                                                        <option value="0">Rejected</option>
                                                         <option value="1">Approved</option>
-
                                                     </select>
-                                                    <p></p>
-
                                                 </div>
-
                                                 <div class="form-group col-md-6">
                                                     <label for="verification_remarks">Remarks</label>
                                                     <textarea id="verification_remarks" name="verification_remarks" class="form-control" required></textarea>
-                                                    <p></p>
-
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <input type="hidden" id="verification_receipt_id" name="verification_receipt_id" value="">
@@ -210,16 +216,12 @@
                                                             <br>Drop files here or click to upload. <br><br>
                                                         </div>
                                                     </div>
-                                                    <p></p>
-
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <div class="d-flex justify-content-center align-items-center">
-                                                        <img id="verification_receipt_image_path" src="" alt="payment"/>
+                                                        <img id="verification_receipt_image_path" src="" />
                                                     </div>
-
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -232,6 +234,7 @@
                         </div>
                     </div>
                 </div>
+
 
 
             </div>
@@ -316,6 +319,8 @@
                         document.getElementById('payment_remarks').textContent = response.payment.remarks;
                         document.getElementById('payment_id').textContent = response.payment.id;
                         document.getElementById('payment_date').textContent =timestampToDate(response.payment.payment_date);
+                        $('#verification_remarks').val(response.payment.verification_remarks);
+                        $('#status').val(response.payment.status);
 
                         // Example imageUrl variable (replace with your dynamic URL)
                         var imageUrl = '{{ asset("storage/payments/") }}' +"/"+ response.payment.receipt_path;
