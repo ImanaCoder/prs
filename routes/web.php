@@ -1,5 +1,7 @@
 <?php
 use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\TeamController;
+use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\manager\ClientController;
 use App\Http\Controllers\manager\DealController;
 use App\Http\Controllers\manager\PaymentController;
@@ -45,8 +47,25 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminController::class, 'dashboardv1'])->name('admin.dashboard');
+        Route::get('/dashboardV2', [AdminController::class, 'dashboardv1'])->name('admin.dashboardv2');
+
+
         Route::delete('/payments/{id}', [PaymentController::class,'destroy'])->name('payments.destroy');
         Route::delete('/deals/{id}', [DealController::class,'destroy'])->name('deals.destroy');
+        Route::get('/deals', [DealController::class,'getDealsForAdmin'])->name('admin.deals');
+
+
+        //Deal routes
+        Route::get('/teams', [TeamController::class,'index'])->name('teams.index');
+        Route::post('/teams/store', [TeamController::class,'store'])->name('teams.store');
+        Route::get('/teams/{id}/edit', [TeamController::class, 'edit'])->name('teams.edit');
+        Route::put('/teams/{id}', [TeamController::class,'update'])->name('teams.update');
+
+        //User routes
+        Route::get('/users', [UserController::class,'index'])->name('users.index');
+        Route::post('/users/store', [UserController::class,'store'])->name('users.store');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+
 
     });
 });
@@ -57,6 +76,7 @@ Route::group(['middleware' => ['auth', 'role:verifier']], function () {
         Route::get('/payments', [PaymentController::class,'index'])->name('payments.index');
         Route::get('/dashboard', [DealController::class, 'getDealsForVerifier'])->name('verifier.dashboard');
         Route::put('/payments/verify/{id}', [PaymentController::class,'verify'])->name('payments.verify');
+
 
     });
 });
@@ -82,7 +102,6 @@ Route::group(['middleware' => ['auth', 'role:sales_manager']], function () {
 
         //Client routes
         Route::get('/clients', [ClientController::class,'index'])->name('clients.index');
-        Route::get('/clients/create', [ClientController::class,'create'])->name('clients.create');
         Route::post('/clients/store', [ClientController::class,'store'])->name('clients.store');
         Route::get('/clients/{id}/edit', [ClientController::class,'edit'])->name('clients.edit');
         Route::put('/clients/{id}', [ClientController::class,'update'])->name('clients.update');
@@ -91,15 +110,12 @@ Route::group(['middleware' => ['auth', 'role:sales_manager']], function () {
 
         //Deal routes
         Route::get('/deals', [DealController::class,'index'])->name('deals.index');
-        Route::get('/deals/create', [DealController::class,'create'])->name('deals.create');
         Route::post('/deals/store', [DealController::class,'store'])->name('deals.store');
         Route::get('/deals/{id}/edit', [DealController::class, 'edit'])->name('deals.edit');
-
         Route::put('/deals/{id}', [DealController::class,'update'])->name('deals.update');
 
 
         //Payment routes
-        Route::get('/payments/create', [PaymentController::class,'create'])->name('payments.create');
         Route::post('/payments/store', [PaymentController::class,'store'])->name('payments.store');
         Route::put('/payments/{id}', [PaymentController::class,'update'])->name('payments.update');
     });

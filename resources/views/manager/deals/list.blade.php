@@ -196,12 +196,7 @@
                                         <div class="row ">
                                             <!-- Deals Section -->
                                             <div class=" mb-3 w-full row col-md-8 bg-white rounded-lg shadow-lg p-6">
-                                                <div class="form-group col-md-6 col-12">
-                                                    <label for="deal_id">Deal Id</label>
-                                                    <input readonly type="text" id="deal_id" name="deal_id" class="form-control" required>
-                                                    <p></p>
-
-                                                </div>
+                                                
                                                 <div class="form-group col-md-6 col-12">
                                                     <label for="name">Deal Name</label>
                                                     <input type="text" id="name" name="name" class="form-control" required>

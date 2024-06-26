@@ -32,16 +32,16 @@
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         Dashboard V1
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    <x-nav-link :href="route('admin.dashboardv2')" :active="request()->routeIs('admin.dashboardv2')">
                         Dashboard V2
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    <x-nav-link :href="route('teams.index')" :active="request()->routeIs('teams.index')">
                        Teams
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                        Sales Managers
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        Users
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    <x-nav-link :href="route('admin.deals')" :active="request()->routeIs('admin.deals')">
                         Deals
                     </x-nav-link>
                     @endrole

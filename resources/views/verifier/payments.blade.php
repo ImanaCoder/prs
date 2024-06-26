@@ -364,6 +364,8 @@
                 verificationFormGroup.style.display = 'block';
             } else {
                 verificationFormGroup.style.display = 'none';
+                $('#verification_receipt_id').val(null);
+
             }
         });
 

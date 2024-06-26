@@ -181,8 +181,7 @@ class PaymentController extends Controller
             ]);
         }
 
-        $payment->status=0;
-        $payment->save();
+        $payment->delete();
 
         session()->flash('success','Payment deleted successfully');
         return response()->json([

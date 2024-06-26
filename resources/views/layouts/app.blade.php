@@ -35,7 +35,7 @@
                 margin-left:0px;
             }
 
-            input{
+            input,select,textarea{
                 font-size:12px !important;
             }
 

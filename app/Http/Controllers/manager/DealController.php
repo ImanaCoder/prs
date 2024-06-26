@@ -49,6 +49,38 @@ class DealController extends Controller
         return view("verifier.deals", compact('deals','teams','clients','sourceTypes'));
     }
 
+    public function getDealsForAdmin(Request $request){
+        $deals = Deal::with('payments')->latest();
+
+        $clients = Client::get();
+        $teams = Team::get();
+        $sourceTypes =  SourceType::get();
+
+        if ($request->get('keyword')) {
+            if (!empty($request->get('keyword'))) {
+                $deals = $deals->where('name', 'like', '%' . $request->get('keyword') . '%');
+            }
+        }
+
+        if ($request->get('team')) {
+            if (!empty($request->get('keyword'))) {
+                $deals = $deals->where('user.team.name', 'like', '%' . $request->get('keyword') . '%');
+            }
+        }
+
+        if ($request->get('user')) {
+            if (!empty($request->get('keyword'))) {
+                $deals = $deals->where('user.name', 'like', '%' . $request->get('keyword') . '%');
+            }
+        }
+
+
+
+        $deals = $deals->paginate(10);
+
+        return view("admin.deals", compact('deals','teams','clients','sourceTypes'));
+    }
+
     public function index(Request $request){
         $deals = Deal::with('payments')->where('user_id',Auth::id())->latest();
         $clients = Client::get();

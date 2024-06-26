@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'team_id'
     ];
 
     /**
@@ -51,5 +52,8 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Team::class);
     }
+
+  
+
 
 }
