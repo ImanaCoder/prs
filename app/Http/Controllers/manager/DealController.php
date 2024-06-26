@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\SourceType;
 use App\Models\Team;
 use App\Models\TempImage;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -18,9 +19,12 @@ use Illuminate\Support\Facades\Validator;
 class DealController extends Controller
 {
     public function getDealsForVerifier(Request $request){
-        $deals = Deal::with('payments')->latest();
+        $deals = Deal::with('payments','user','client')->latest();
+        // return response()->json([$deals]);
 
         $clients = Client::get();
+        $managers = User::role(3)->get();
+
         $teams = Team::get();
         $sourceTypes =  SourceType::get();
 
@@ -30,29 +34,40 @@ class DealController extends Controller
             }
         }
 
-        if ($request->get('team')) {
-            if (!empty($request->get('keyword'))) {
-                $deals = $deals->where('user.team.name', 'like', '%' . $request->get('keyword') . '%');
+        if ($request->get('team_id')) {
+            if (!empty($request->get('team_id'))) {
+                // Assuming $request->get('team_id') contains the team ID you want to filter by
+                $teamId = $request->get('team_id');
+                $deals = $deals->whereHas('user', function ($query) use ($teamId) {
+                    $query->where('team_id', $teamId);
+                });
             }
         }
 
-        if ($request->get('user')) {
-            if (!empty($request->get('keyword'))) {
-                $deals = $deals->where('user.name', 'like', '%' . $request->get('keyword') . '%');
+        if ($request->get('client_id')) {
+            if (!empty($request->get('client_id'))) {
+                $deals = $deals->where('client_id',$request->get('client_id'));
             }
         }
 
-
+        if ($request->get('manager_id')) {
+            if (!empty($request->get('manager_id'))) {
+                $deals = $deals->where('user_id',$request->get('manager_id'));
+            }
+        }
 
         $deals = $deals->paginate(10);
 
-        return view("verifier.deals", compact('deals','teams','clients','sourceTypes'));
+        return view("verifier.deals", compact('deals','teams','clients','sourceTypes','managers'));
     }
 
     public function getDealsForAdmin(Request $request){
-        $deals = Deal::with('payments')->latest();
+        $deals = Deal::with('payments','user','client')->latest();
+        // return response()->json([$deals]);
 
         $clients = Client::get();
+        $managers = User::role(3)->get();
+
         $teams = Team::get();
         $sourceTypes =  SourceType::get();
 
@@ -62,23 +77,31 @@ class DealController extends Controller
             }
         }
 
-        if ($request->get('team')) {
-            if (!empty($request->get('keyword'))) {
-                $deals = $deals->where('user.team.name', 'like', '%' . $request->get('keyword') . '%');
+        if ($request->get('team_id')) {
+            if (!empty($request->get('team_id'))) {
+                // Assuming $request->get('team_id') contains the team ID you want to filter by
+                $teamId = $request->get('team_id');
+                $deals = $deals->whereHas('user', function ($query) use ($teamId) {
+                    $query->where('team_id', $teamId);
+                });
             }
         }
 
-        if ($request->get('user')) {
-            if (!empty($request->get('keyword'))) {
-                $deals = $deals->where('user.name', 'like', '%' . $request->get('keyword') . '%');
+        if ($request->get('client_id')) {
+            if (!empty($request->get('client_id'))) {
+                $deals = $deals->where('client_id',$request->get('client_id'));
             }
         }
 
-
+        if ($request->get('manager_id')) {
+            if (!empty($request->get('manager_id'))) {
+                $deals = $deals->where('user_id',$request->get('manager_id'));
+            }
+        }
 
         $deals = $deals->paginate(10);
 
-        return view("admin.deals", compact('deals','teams','clients','sourceTypes'));
+        return view("admin.deals", compact('deals','teams','clients','sourceTypes','managers'));
     }
 
     public function index(Request $request){

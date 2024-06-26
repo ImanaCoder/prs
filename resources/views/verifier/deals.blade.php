@@ -1,24 +1,50 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight mx-xl-5 mx-2 py-3">
             Deals
         </h2>
     </x-slot>
 
     <div class="py-12" style="font-size:12px;">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-5">
+        <div class="max-w-8xl mx-xl-5 mx-2">
+            <div class=" overflow-hidden sm:rounded-lg p-xl-5 p-2">
 
                 <div class="container mt-4">
 
                     <div class="card">
-                        <form action="" method="get">
+                        <form action="" method="get" id="searchForm">
                             <div class="card-header">
                                 <div class="card-title">
-                                    <button type="button" onclick="window.location.href='{{ route('verifier.dashboard') }}' " class="btn btn-default btn-sm">Reset</button>
+                                    <button type="button" onclick="window.location.href='{{ route('admin.dashboard') }}' " class="btn btn-default btn-sm">Reset</button>
                                 </div>
                                 <div class="card-tools">
-                                    <div class="input-group input-group" style="width: 250px;">
+                                    <div class="input-group input-group" style="width: 100%;">
+                                        <select id="client_id" name="client_id" class="form-control">
+                                            <option value="">All Clients</option>
+                                            @foreach ($clients as $client)
+                                                <option value="{{ $client->id }}" {{ Request::get('client_id') == $client->id ? 'selected' : '' }}>
+                                                    {{ $client->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+                                        <select id="team_id" name="team_id" class="form-control">
+                                            <option value="">All Teams</option>
+                                            @foreach ($teams as $team)
+                                                <option value="{{ $team->id }}" {{ Request::get('team_id') == $team->id ? 'selected' : '' }}>
+                                                    {{ $team->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <select id="manager_id" name="manager_id" class="form-control">
+                                            <option value="">All Managers</option>
+                                            @foreach ($managers as $manager)
+                                                <option value="{{ $manager->id }}" {{ Request::get('manager_id') == $manager->id ? 'selected' : '' }}>
+                                                    {{ $team->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
                                         <input value="{{ Request::get('keyword') }}" type="text" name="keyword" class="form-control float-right" placeholder="Search" style="border-color:#ddd;">
 
                                         <div class="input-group-append">
@@ -153,7 +179,7 @@
                                                             </td>
 
                                                               <td>
-                                                                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#approvePayment" onclick="approvePayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
+                                                                  <button class="btn btn-sm btn-primary" onclick="approvePayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
 
                                                               </td>
                                                           </tr>
@@ -172,6 +198,9 @@
                               </table>
                             </div>
                           </div>
+                          <div class="card-footer clearfix">
+                            {!! $deals->links() !!}
+                        </div>
                     </div>
 
                   </div>
@@ -435,6 +464,14 @@
                 });
             });
 
+            // jQuery document ready function to ensure DOM is fully loaded
+            $(document).ready(function() {
+                // Bind change event to both select elements
+                $('#client_id, #team_id, #manager_id').change(function() {
+                    // Submit the form with id 'searchForm'
+                    $('#searchForm').submit();
+                });
+            });
 
 
 

@@ -1,6 +1,6 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-8xl mx-xl-5 mx-2 px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -142,19 +142,45 @@
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         Dashboard V1
                     </x-responsive-nav-link>
-                @endrole
-
-                @role('verifier')
-                    <x-responsive-nav-link :href="route('verifier.dashboard')" :active="request()->routeIs('verifier.dashboard')">
+                    <x-responsive-nav-link :href="route('admin.dashboardv2')" :active="request()->routeIs('admin.dashboardv2')">
                         Dashboard V2
                     </x-responsive-nav-link>
-                @endrole
-
-                @role('sales_manager')
-                    <x-responsive-nav-link :href="route('manager.dashboard')" :active="request()->routeIs('manager.dashboard')">
-                        Dashboard V3
+                    <x-responsive-nav-link :href="route('teams.index')" :active="request()->routeIs('teams.index')">
+                       Teams
                     </x-responsive-nav-link>
-                @endrole
+                    <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        Users
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.deals')" :active="request()->routeIs('admin.deals')">
+                        Deals
+                    </x-responsive-nav-link>
+                    @endrole
+
+                    @role('verifier')
+                    <x-responsive-nav-link :href="route('verifier.dashboard')" :active="request()->routeIs('verifier.dashboard')">
+                        Deals
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
+                        Payments
+                    </x-responsive-nav-link>
+                    @endrole
+
+                    @role('sales_manager')
+                    <x-responsive-nav-link :href="route('manager.dashboard')" :active="request()->routeIs('manager.dashboard')">
+                        Dashboard
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')">
+                        Clients
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('deals.index')" :active="request()->routeIs('deals.index')">
+                        Deals
+                    </x-responsive-nav-link>
+                    @endrole
+
+
+
             </div>
         </div>
 

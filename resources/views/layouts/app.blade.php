@@ -2,15 +2,16 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{ config('app.name', 'PRS') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.css" />
 		<!-- Font Awesome -->
 		<link rel="stylesheet" href="{{asset('admin-assets/plugins/fontawesome-free/css/all.min.css')}}">
 		<!-- Theme style -->
@@ -22,6 +23,18 @@
 		<link rel="stylesheet" href="{{asset('admin-assets/css/custom.css')}}">
         <link rel="stylesheet" href="{{ asset('admin-assets/css/datetimepicker.css') }}">
         <style>
+                /* Custom CSS for reducing padding in container-fluid */
+
+            .container-fluid {
+                margin-right: 0px; /* Adjust as needed */
+                margin-left: 0px;  /* Adjust as needed */
+            }
+            /* Optional: Override other Bootstrap styles */
+            @media (min-width: 1200px) {
+                .container {
+                    max-width: 100%; /* Ensures full width on large screens */
+                }
+            }
             .btn{
                 font-size:12px;
             }
@@ -47,11 +60,29 @@
             color: darkblue;
         }
 
+        .status-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+        .status-red {
+            background-color: red;
+        }
+        .status-green {
+            background-color: green;
+        }
+        .status-yellow {
+            background-color: yellow;
+            color: black;
+        }
+
 
 
         </style>
-
-
 
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -66,7 +97,7 @@
             <!-- Page Heading -->
             @isset($header)
                 <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div class="max-w-8xl mx-auto px-4 sm:px-3 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
@@ -77,8 +108,15 @@
                 {{ $slot }}
             </main>
         </div>
-        		<!-- jQuery -->
-		<script src="{{asset('admin-assets/plugins/jquery/jquery.min.js')}}"></script>
+        <!-- jQuery -->
+		{{-- <script src="{{asset('admin-assets/plugins/jquery/jquery.min.js')}}"></script> --}}
+        <!-- Include jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Include Moment.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <!-- Include Date Range Picker -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js"></script>
+
 		<!-- Bootstrap 4 -->
 		<script src="{{asset('admin-assets/plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 		<!-- AdminLTE App -->
@@ -91,6 +129,7 @@
         <script src="{{asset('admin-assets/plugins/dropzone/min/dropzone.min.js')}}"></script>
         <script src="{{ asset('admin-assets/js/datetimepicker.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
         <script type="text/javascript">
 
@@ -106,6 +145,7 @@
                     height:250
                 });
             });
+
 
         </script>
 

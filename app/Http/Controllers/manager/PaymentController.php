@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\manager;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
+use App\Models\Deal;
 use App\Models\Payment;
 use App\Models\TempImage;
 use Carbon\Carbon;
@@ -16,6 +18,8 @@ class PaymentController extends Controller
 {
     public function index(Request $request){
         $payments = Payment::with('deal')->latest();
+        $deals=Deal::get();
+        $clients= Client::get();
 
         if ($request->get('keyword')) {
             if (!empty($request->get('keyword'))) {
@@ -23,16 +27,25 @@ class PaymentController extends Controller
             }
         }
 
-        if ($request->get('deal')) {
-            if (!empty($request->get('deal'))) {
-                $payments = $payments->where('deal.name', 'like', '%' . $request->get('keyword') . '%');
+        if ($request->get('deal_id')) {
+            if (!empty($request->get('deal_id'))) {
+                $payments = $payments->where('deal_id',$request->get('deal_id'));
+            }
+        }
+        if ($request->get('client_id')) {
+            if (!empty($request->get('client_id'))) {
+                // Assuming $request->get('team_id') contains the team ID you want to filter by
+                $clientId = $request->get('client_id');
+                $payments = $payments->whereHas('deal', function ($query) use ($clientId) {
+                    $query->where('client_id', $clientId);
+                });
             }
         }
 
 
         $payments = $payments->paginate(10);
 
-        return view("verifier.payments", compact('payments'));
+        return view("verifier.payments", compact('payments','clients','deals'));
     }
 
 

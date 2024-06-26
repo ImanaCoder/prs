@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminController::class, 'dashboardv1'])->name('admin.dashboard');
-        Route::get('/dashboardV2', [AdminController::class, 'dashboardv1'])->name('admin.dashboardv2');
+        Route::get('/dashboardV2', [AdminController::class, 'dashboardv2'])->name('admin.dashboardv2');
 
 
         Route::delete('/payments/{id}', [PaymentController::class,'destroy'])->name('payments.destroy');

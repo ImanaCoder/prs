@@ -7,12 +7,12 @@
 
     <div class="py-12">
         <form action="" id="dashboardForm">
-            <div class="max-w-8xl mx-xl-5 mx-2 px-lg-5">
-                <div class=" overflow-hidden sm:rounded-lg py-2">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class=" overflow-hidden sm:rounded-lg p-5">
                     <!-- Sales Summary -->
-                    <section class=" ">
-                        <div class="row col-md-12" style="padding:0px">
-                            <div class="col-md-6 mb-4" style="padding-left: 0px">
+                    <section class="sales-summary">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="card-header">
@@ -72,20 +72,17 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
-                                            <div class="d-flex justify-content-center">
-                                                {{ $salesToday->links() }}
-                                            </div>
                                         </div>
 
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-4" style="padding-right: 0px">
+                            <div class="col-md-6 mb-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="card-header">
                                             <div class="card-title">
-                                                <h3 class="card-title">Custom Total Sales</h3>
+                                                <h3 class="card-title">June Total Sales</h3>
                                                 <p class="card-text" style="font-size: 60px; margin-left: 50px;">{{ $totalSales }}</p>
                                             </div>
                                             <div class="card-tools" >
@@ -144,9 +141,6 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
-                                            <div class="d-flex justify-content-center">
-                                                {{ $salesThisMonth->links() }}
-                                            </div>
                                         </div>
 
                                     </div>
@@ -161,7 +155,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="card-tools">
-                                 <select id="manager_id" name="manager_id" class="form-control">
+                                 <select id="manager_id" name="manager_id" class="form-control mb-2">
                                     <option value="">All</option>
                                     @foreach ($managers as $manager)
                                         <option value="{{ $manager->id }}" {{ Request::get('manager_id') == $manager->id ? 'selected' : '' }}>
@@ -169,6 +163,7 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                <input type="text" id="additional_daterange_textbox" name="additional_daterange" class="form-control" readonly value="{{ request()->input('additional_daterange', date('Y-m-d')) }}" style="width:200px"/>
 
                                 </div>
                             </div>
@@ -397,7 +392,24 @@
                     $('#dashboardForm').submit();
                 });
 
-
+                $('#additional_daterange_textbox').daterangepicker({
+                    showDropdowns: true,
+                    autoApply: true,
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                }, function(start, end) {
+                    $('#additional_daterange_textbox').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                    $('#dashboardForm').submit();
+                });
             });
 
             document.addEventListener('DOMContentLoaded', function () {

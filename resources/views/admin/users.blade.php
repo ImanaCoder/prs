@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight mx-xl-5 mx-2 py-3">
             Users
         </h2>
     </x-slot>
 
     <div class="py-12" style="font-size:12px;">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-5">
+        <div class="max-w-8xl mx-xl-5 mx-2">
+            <div class=" overflow-hidden sm:rounded-lg p-2">
 
                 <div class="container mt-4">
                     <div class="d-flex justify-content-end w-full">
@@ -73,6 +73,9 @@
                               </table>
                             </div>
                           </div>
+                          <div class="card-footer clearfix">
+                            {!! $users->links() !!}
+                        </div>
                     </div>
 
                 </div>

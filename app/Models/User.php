@@ -52,8 +52,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Team::class);
     }
+    // User.php (Model)
+    public function deals()
+    {
+        return $this->hasMany(Deal::class); // Assuming Deal model has 'user_id' foreign key
+    }
 
-  
+
+
 
 
 }
