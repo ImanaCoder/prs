@@ -50,6 +50,18 @@
                                     <th>Action</th>
                                   </tr>
                                 </thead>
+                                @php
+                                function getOrdinal($number) {
+                                    $ordinals = [
+                                        "First", "Second", "Third", "Fourth", "Fifth",
+                                        "Sixth", "Seventh", "Eighth", "Ninth", "Tenth",
+                                        "Eleventh", "Twelfth", "Thirteenth"
+                                    ];
+
+                                    return ($number >= 1 && $number <= 13) ? $ordinals[$number - 1] : "Number out of range";
+                                }
+                                @endphp
+
                                 <tbody>
                                   @if ($deals->isNotEmpty())
 
@@ -68,26 +80,28 @@
                                           <td>{{ $deal->version }}</td>
                                           <td>{{ $deal->deal_value }}</td>
                                           <td>
-                                              @if ($deal->payments != null)
-                                                  @foreach ($deal->payments as $payment)
-                                                    <a href="{{ route('payments.details',$payment->id) }}">
-                                                      @if ($payment->status == 0)
-                                                          <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                          </svg>
-                                                      @endif
-                                                      @if ($payment->status == 1)
-                                                          <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                                                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                          </svg>
-                                                      @endif
+                                            @if ($deal->payments != null)
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                @foreach ($deal->payments as $index => $payment)
+                                                    <a href="{{ route('payments.details', $payment->id) }}">
+                                                        @if ($payment->status == 0)
+                                                            <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                            </svg>
+                                                        @endif
+                                                        @if ($payment->status == 1)
+                                                            <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                            </svg>
+                                                        @endif
+                                                        <span class="mr-4">{{ getOrdinal($index + 1) }}</span>
+
                                                     </a>
+                                                @endforeach
+                                            </div>
+                                            @endif
+                                        </td>
 
-                                                  @endforeach
-
-                                              @endif
-
-                                          </td>
                                           <td >
 
                                               @if ($deal->payments->isNotEmpty())
@@ -113,6 +127,7 @@
                                                           <th>Remarks</th>
                                                           <th>Verified By</th>
                                                           <th>Verified At</th>
+                                                          <th>Verification Receipt</th>
                                                           <th>Action</th>
                                                       </tr>
                                                   </thead>
@@ -121,12 +136,22 @@
 
                                                           <tr>
 
-                                                              <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
-                                                              <td>{{ $payment->payment_value }}</td>
-                                                              <td>{{ $payment->receipt_path }}</td>
-                                                              <td>{{ $payment->remarks }}</td>
-                                                              <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
-                                                              <td>{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('jS F, Y h:i A') : "N/A" }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
+                                                            <td>{{ $payment->payment_value }}</td>
+                                                            <td><a href="{{ asset('storage/payments/'.$payment->receipt_path) }}" class="blue-text" target="_blank">{{ $payment->id }} Receipt</a> </td>
+                                                            <td>{{ $payment->remarks }}</td>
+                                                            <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
+                                                            <td>{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('jS F, Y h:i A') : "N/A" }}</td>
+                                                            <td >
+                                                              @if ($payment->verification_receipt_path)
+                                                                  <a href="{{ asset('storage/payments/verification-receipts/'.$payment->verification_receipt_path) }}" class="blue-text"   target="_blank">
+                                                                      {{ $payment->id }} Verification Receipt
+                                                                  </a>
+                                                              @else
+                                                                  N/A
+                                                              @endif
+                                                            </td>
+
                                                               <td>
                                                                   <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#approvePayment" onclick="approvePayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
 
@@ -243,6 +268,7 @@
     </div>
     @section('customJs')
         <script>
+
 
             // Example JavaScript specific to this page
             function toggleSubTable(button) {

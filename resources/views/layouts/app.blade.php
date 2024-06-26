@@ -39,6 +39,14 @@
                 font-size:12px !important;
             }
 
+            .blue-text {
+            color: blue;
+            text-decoration: none;
+        }
+        .blue-text:hover {
+            color: darkblue;
+        }
+
 
 
         </style>
@@ -53,6 +61,7 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
+
 
             <!-- Page Heading -->
             @isset($header)
