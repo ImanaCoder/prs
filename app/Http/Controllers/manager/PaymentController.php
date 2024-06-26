@@ -85,6 +85,18 @@ class PaymentController extends Controller
         }
     }
 
+
+    public function paymentDetails($paymentId, Request $request) {
+        $payment = Payment::find($paymentId);
+        if(empty($payment)){
+            session()->flash('error','Payment not found');
+
+            return redirect()->route('deals.index');
+        }
+
+        return view('payment_detail',compact('payment'));
+    }
+
     public function edit($paymentId, Request $request) {
         $payment = Payment::find($paymentId);
         if(empty($payment)){
@@ -181,13 +193,7 @@ class PaymentController extends Controller
     }
 
     public function verify($paymentId, Request $request){
-        if(Auth::check()){
-            session()->flash('error','You are not authorized');
-            return response()->json([
-                'status' => false,
-                'message' => 'You are not authorized'
-            ]);
-        }
+
         $payment =  Payment::find($paymentId);
         if(empty($payment)){
             session()->flash('error','Payment not found');

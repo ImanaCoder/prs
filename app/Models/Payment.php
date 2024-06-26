@@ -21,4 +21,9 @@ class Payment extends Model
     {
         return $this->belongsTo(Deal::class);
     }
+
+    public function verified_by()
+    {
+        return $this->belongsTo(User::class,'verified_by_id');
+    }
 }

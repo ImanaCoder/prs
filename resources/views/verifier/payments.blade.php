@@ -10,9 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-5">
 
                 <div class="container mt-4">
-                    <div class="d-flex justify-content-end w-full">
-                        <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addClient">Add Client</button>
-                    </div>
+
 
                     <div class="card">
                         <form action="" method="get">
@@ -61,7 +59,7 @@
                                       <td>{{ $payment->deal->user->name }}</td>
                                       <td>{{ $payment->remarks }}</td>
                                       <td>
-                                          <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editClient" onclick="approvePayment('{{ $payment->id }}')" ><i class="fas fa-edit"></i></button>
+                                          <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#approvePayment" onclick="approvePayment('{{ $payment->id }}')" ><i class="fas fa-edit"></i></button>
                                       </td>
                                   </tr>
                                   @endforeach
@@ -135,7 +133,7 @@
                                                 <label for="verification_remarks">Remarks</label>
                                                 <textarea id="verification_remarks" name="verification_remarks" class="form-control" required></textarea>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <div class="form-group col-md-6" id="verification_form_group" style="display: none;">
                                                 <input type="hidden" id="verification_receipt_id" name="verification_receipt_id" value="">
                                                 <label for="verification_receipt">Verification Receipt</label>
                                                 <div id="verification_receipt" class="dropzone dz-clickable">
@@ -243,8 +241,16 @@
                     document.getElementById('payment_id').textContent = response.payment.id;
                     document.getElementById('payment_date').textContent =timestampToDate(response.payment.payment_date);
                     $('#verification_remarks').val(response.payment.verification_remarks);
+
                     $('#status').val(response.payment.status);
 
+                    var verificationFormGroup = document.getElementById('verification_form_group');
+
+                    if (response.payment.status === '1' || response.payment.status==1) {
+                        verificationFormGroup.style.display = 'block';
+                    } else {
+                        verificationFormGroup.style.display = 'none';
+                    }
                     // Example imageUrl variable (replace with your dynamic URL)
                     var imageUrl = '{{ asset("storage/payments/") }}' +"/"+ response.payment.receipt_path;
 
@@ -257,7 +263,23 @@
                     } else {
                         console.error('Image element not found.');
                     }
-                                        // Show the edit modal
+
+                   if(response.payment.verification_receipt_path != null){
+                        // Example verificationImageUrl variable (replace with your dynamic URL)
+                        var verificationImageUrl = '{{ asset("storage/payments/verification-receipts") }}' +"/"+ response.payment.verification_receipt_path;
+
+                        // Select the image element by its ID or another selector
+                        var imgElement1 = document.getElementById('verification_receipt_image_path'); // Replace 'yourImgId' with your actual image element ID
+
+                        // Set the src attribute of the image element
+                        if (imgElement1) {
+                            imgElement1.src = verificationImageUrl;
+                        } else {
+                            console.error('Image element not found.');
+                        }
+                   }
+
+                   // Show the edit modal
                     $('#approvePayment').modal('show');
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -270,10 +292,13 @@
             event.preventDefault();
             var element = $("#approvePaymentForm");
             $("button[type=submit]").prop('disabled',true);
-            var dealId=$('#payment_id').val();
+            // Get the span element by its id
+            var spanElement = document.getElementById("payment_id");
 
+            // Get the content of the span element
+            var spanContent = spanElement.innerHTML;
             $.ajax({
-                url:'{{ route('payments.verify', ['id' => ':id']) }}'.replace(':id', dealId),
+                url:'{{ route('payments.verify', ['id' => ':id']) }}'.replace(':id', spanContent),
                 type:'put',
                 data: element.serializeArray(),
                 dataType: 'json',
@@ -305,6 +330,41 @@
                     console.log("केहि गलति भयो!");
                 }
             });
+        });
+
+        const dropzone1 = $("#verification_receipt").dropzone({
+            init: function() {
+                this.on('addedfile', function(file) {
+                    if (this.files.length > 1) {
+                        this.removeFile(this.files[0]);
+                    }
+                })
+                $("button[type=submit]").prop('disabled',true);
+
+            },
+            url: "{{ route('temp-images.create') }}",
+            maxFiles: 1,
+            paramName: 'image',
+            addRemoveLinks: true,
+            acceptedFiles: "image/jpeg,image/png,image/gif",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(file, response){
+
+                $("#verification_receipt_id"). val(response.image_id);
+                $("button[type=submit]").prop('disabled',false);
+
+            }
+        });
+
+        document.getElementById('status').addEventListener('change', function() {
+            var verificationFormGroup = document.getElementById('verification_form_group');
+            if (this.value === '1') {
+                verificationFormGroup.style.display = 'block';
+            } else {
+                verificationFormGroup.style.display = 'none';
+            }
         });
 
 

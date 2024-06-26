@@ -66,6 +66,12 @@ Route::group(['middleware' => ['auth', 'role:sales_manager|verifier']], function
 
 });
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/payment-details/{id}', [PaymentController::class,'paymentDetails'])->name('payments.details');
+
+});
+
+
 
 // Sales Manager routes
 Route::group(['middleware' => ['auth', 'role:sales_manager']], function () {

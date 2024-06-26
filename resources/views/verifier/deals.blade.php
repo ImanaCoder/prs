@@ -10,9 +10,6 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-5">
 
                 <div class="container mt-4">
-                    <div class="d-flex justify-content-end w-full">
-                        <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addModal">Add Deal</button>
-                    </div>
 
                     <div class="card">
                         <form action="" method="get">
@@ -73,6 +70,7 @@
                                           <td>
                                               @if ($deal->payments != null)
                                                   @foreach ($deal->payments as $payment)
+                                                    <a href="{{ route('payments.details',$payment->id) }}">
                                                       @if ($payment->status == 0)
                                                           <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                               <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -83,6 +81,7 @@
                                                               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                           </svg>
                                                       @endif
+                                                    </a>
 
                                                   @endforeach
 
@@ -350,6 +349,8 @@
                             this.removeFile(this.files[0]);
                         }
                     })
+                    $("button[type=submit]").prop('disabled',true);
+
                 },
                 url: "{{ route('temp-images.create') }}",
                 maxFiles: 1,
@@ -361,6 +362,8 @@
                 },
                 success: function(file, response){
                     $("#verification_receipt_id"). val(response.image_id);
+                    $("button[type=submit]").prop('disabled',false);
+
                 }
             });
 
