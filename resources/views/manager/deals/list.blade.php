@@ -103,8 +103,8 @@
                                             @endif
                                         </td>
                                           <td class="row gap-2">
-                                              <button class="btn btn-sm btn-primary"  onclick="editDeal('{{ $deal->id }}')" data-toggle="modal" data-target="#editModal"><i class="fas fa-edit"></i></button>
-                                              <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#addPayment" onclick="addPayment('{{ $deal->id }}')"><i class="fas fa-plus"></i></button>
+                                              <button class="btn btn-sm btn-primary"  onclick="editDeal('{{ $deal->id }}')" ><i class="fas fa-edit"></i></button>
+                                              <button class="btn btn-sm btn-success" onclick="addPayment('{{ $deal->id }}')"><i class="fas fa-plus"></i></button>
                                               @if ($deal->payments->isNotEmpty())
                                               <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="fas fa-chevron-down"></i></button>
 
@@ -154,7 +154,7 @@
                                                             </td>
 
                                                               <td>
-                                                                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editPayment" onclick="editPayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
+                                                                  <button class="btn btn-sm btn-primary" onclick="editPayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
 
                                                               </td>
                                                           </tr>

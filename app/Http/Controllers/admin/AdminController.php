@@ -102,12 +102,17 @@ class AdminController extends Controller
         if ($request->get('manager_id')) {
 
 
-            $managerId=$request->get('manager_id');
+            $managerId = $request->get('manager_id');
 
-            $pendingPayments = Payment::where('user_id',$managerId)->where('status', 3)->paginate(10);
-            $verifiedPayments = Payment::where('user_id',$managerId)->where('status', 1)->paginate(10);
-            $rejectedPayments = Payment::where('user_id',$managerId)->where('status', 0)->paginate(10);
-            $payments = Payment::where('user_id',$managerId)->paginate(10);
+            // Get deals associated with the manager
+            $dealIds = Deal::where('user_id', $managerId)->pluck('id');
+
+            // Fetch payments related to these deals
+            $pendingPayments = Payment::whereIn('deal_id', $dealIds)->where('status', 3)->paginate(10);
+            $verifiedPayments = Payment::whereIn('deal_id', $dealIds)->where('status', 1)->paginate(10);
+            $rejectedPayments = Payment::whereIn('deal_id', $dealIds)->where('status', 0)->paginate(10);
+            $payments = Payment::whereIn('deal_id', $dealIds)->paginate(10);
+
 
 
             // Get deal count between additionalStartDate and additionalEndDate

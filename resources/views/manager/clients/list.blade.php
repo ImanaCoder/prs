@@ -61,7 +61,7 @@
                                       <td>{{ $client->email }}</td>
                                       <td>{{ \Carbon\Carbon::parse($client->created_at)->format('jS F, Y h:i A') }}</td>
                                       <td>
-                                          <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editClient" onclick="editClient('{{ $client->id }}')" ><i class="fas fa-edit"></i></button>
+                                          <button class="btn btn-sm btn-primary" onclick="editClient('{{ $client->id }}')" ><i class="fas fa-edit"></i></button>
                                       </td>
                                   </tr>
                                   @endforeach

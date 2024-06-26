@@ -21,14 +21,7 @@
                                                 <p class="card-text" style="font-size: 60px; margin-left: 50px;">{{ $salesCountToday }}</p>
                                             </div>
                                             <div class="card-tools">
-                                                <select id="today_team_id" name="today_team_id"  class="form-control mb-2" style="width:200px">
-                                                    <option value="">All</option>
-                                                    @foreach ($teams as $team)
-                                                        <option value="{{ $team->id }}" {{ Request::get('team_id') == $team->id ? 'selected' : '' }}>
-                                                            {{ $team->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+
                                                 <input type="date" name="today" class="form-control" value="{{ request()->input('today', date('Y-m-d')) }}"  onchange="submitForm()" />
 
                                             </div>
@@ -89,14 +82,7 @@
                                                 <p class="card-text" style="font-size: 60px; margin-left: 50px;">{{ $totalSales }}</p>
                                             </div>
                                             <div class="card-tools" >
-                                                <select id="team_id" name="team_id" class="form-control mb-2" style="width:200px">
-                                                    <option value="">All</option>
-                                                    @foreach ($teams as $team)
-                                                        <option value="{{ $team->id }}" {{ Request::get('team_id') == $team->id ? 'selected' : '' }}>
-                                                            {{ $team->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+
                                                 <input type="text" id="daterange_textbox" name="sales_daterange" class="form-control" readonly value="{{ request()->input('sales_daterange', date('Y-m-d')) }}" style="width:200px" />
 
 
@@ -158,21 +144,7 @@
 
                     <!-- Additional Info -->
                     <section class="additional-info">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-tools">
-                                 <select id="manager_id" name="manager_id" class="form-control">
-                                    <option value="">All</option>
-                                    @foreach ($managers as $manager)
-                                        <option value="{{ $manager->id }}" {{ Request::get('manager_id') == $manager->id ? 'selected' : '' }}>
-                                            {{ $manager->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
 
-                                </div>
-                            </div>
-                            <div class="card-body">
                                 <div class="row">
 
                                     <!-- Payment Activities -->
@@ -366,8 +338,7 @@
                                     </div>
                                 </div>
 
-                            </div>
-                        </div>
+                            
 
                     </section>
                 </div>
