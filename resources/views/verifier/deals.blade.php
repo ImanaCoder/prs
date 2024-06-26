@@ -343,6 +343,28 @@
                 });
             }
 
+            const dropzone1 = $("#verification_receipt").dropzone({
+                init: function() {
+                    this.on('addedfile', function(file) {
+                        if (this.files.length > 1) {
+                            this.removeFile(this.files[0]);
+                        }
+                    })
+                },
+                url: "{{ route('temp-images.create') }}",
+                maxFiles: 1,
+                paramName: 'image',
+                addRemoveLinks: true,
+                acceptedFiles: "image/jpeg,image/png,image/gif",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(file, response){
+                    $("#verification_receipt_id"). val(response.image_id);
+                }
+            });
+
+
             $("#approvePaymentForm").submit(function(event){
                 event.preventDefault();
                 var element = $("#approvePaymentForm");
