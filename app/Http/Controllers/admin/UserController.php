@@ -54,6 +54,7 @@ class UserController extends Controller
                 }
             }
 
+            $user->sendEmailVerificationNotification();
 
             session()->flash('success','User created successfully');
 

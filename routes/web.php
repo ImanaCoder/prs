@@ -2,10 +2,12 @@
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\TeamController;
 use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\manager\ClientController;
 use App\Http\Controllers\manager\DealController;
 use App\Http\Controllers\manager\PaymentController;
 use App\Http\Controllers\manager\SalesManagerController;
+use App\Http\Controllers\OTPVerificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TempImageController;
 use App\Http\Controllers\verifier\VerifierController;
@@ -37,6 +39,11 @@ Route::get('/cache-clear', function () {
 
 });
 
+Route::get('/verify-otp', [OTPVerificationController::class, 'showVerifyForm'])->name('otp.verify');
+Route::post('/verify-otp', [OTPVerificationController::class, 'verify'])->name('otp.verify.submit');
+
+Route::post('/login-process', [LoginController::class, 'authenticate'])->name('prs.login');
+
 // Authenticated middleware for authenticated users
 Route::middleware('auth')->group(function () {
     // Profile routes
@@ -61,7 +68,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin routes
-Route::group(['middleware' => ['auth', 'role:admin']], function () {
+Route::group(['middleware' => ['auth', 'role:admin',"verified"]], function () {
     Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminController::class, 'dashboardv1'])->name('admin.dashboard');
         Route::get('/dashboardV2', [AdminController::class, 'dashboardv2'])->name('admin.dashboardv2');
@@ -91,7 +98,7 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 });
 
 // Verifier routes
-Route::group(['middleware' => ['auth', 'role:verifier']], function () {
+Route::group(['middleware' => ['auth', 'role:verifier',"verified"]], function () {
     Route::group(['prefix' => 'verifier'], function () {
         Route::get('/payments', [PaymentController::class,'index'])->name('payments.index');
         Route::get('/dashboard', [DealController::class, 'getDealsForVerifier'])->name('verifier.dashboard');
@@ -101,12 +108,12 @@ Route::group(['middleware' => ['auth', 'role:verifier']], function () {
     });
 });
 
-Route::group(['middleware' => ['auth', 'role:sales_manager|verifier|admin']], function () {
+Route::group(['middleware' => ['auth', 'role:sales_manager|verifier|admin',"verified"]], function () {
     Route::get('/payments/{id}/edit', [PaymentController::class,'edit'])->name('payments.edit');
 
 });
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth',"verified"]], function () {
     Route::get('/payment-details/{id}', [PaymentController::class,'paymentDetails'])->name('payments.details');
 
 });
@@ -114,7 +121,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 // Sales Manager routes
-Route::group(['middleware' => ['auth', 'role:sales_manager']], function () {
+Route::group(['middleware' => ['auth', 'role:sales_manager',"verified"]], function () {
     Route::group(['prefix' => 'sales-manager'], function () {
         Route::get('/dashboard', [SalesManagerController::class, 'index'])->name('manager.dashboard');
 

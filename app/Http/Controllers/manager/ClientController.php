@@ -29,7 +29,7 @@ class ClientController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id'=>'required',
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'contact' => 'required',
             'nationality' => 'required'
         ]);
@@ -80,7 +80,7 @@ class ClientController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,'.$clientId.',id',
             'contact' => 'required',
             'nationality' => 'required'
         ]);
