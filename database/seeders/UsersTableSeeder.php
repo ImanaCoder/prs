@@ -22,12 +22,6 @@ class UsersTableSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'), // Replace with a secure password
         ]);
-        // Create admin user
-        $admin = User::create([
-            'name' => 'Imana Coder',
-            'email' => 'imanacoder@gmail.com',
-            'password' => Hash::make('password'), // Replace with a secure password
-        ]);
         $admin->assignRole('admin');
 
         // Create verifier user

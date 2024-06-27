@@ -14,7 +14,7 @@ class TeamController extends Controller
 
         if ($request->get('keyword')) {
             if (!empty($request->get('keyword'))) {
-                $teams = $teams->where('remarks', 'like', '%' . $request->get('keyword') . '%');
+                $teams = $teams->where('name', 'like', '%' . $request->get('keyword') . '%');
             }
         }
 

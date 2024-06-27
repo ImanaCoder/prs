@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TempImageController;
 use App\Http\Controllers\verifier\VerifierController;
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,22 @@ Route::middleware('guest')->group(function () {
     Route::get('/', function () {
         return view('auth.login');
     });
+});
+
+Route::get('/cache-clear', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('storage:link');
+    Artisan::call('optimize:clear');
+    Artisan::call('optimize');
+    Artisan::call('db:seed');
+
+    $output = Artisan::output();
+    return $output;
+
+
 });
 
 // Authenticated middleware for authenticated users
@@ -53,6 +70,7 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
         Route::delete('/payments/{id}', [PaymentController::class,'destroy'])->name('payments.destroy');
         Route::delete('/deals/{id}', [DealController::class,'destroy'])->name('deals.destroy');
         Route::get('/deals', [DealController::class,'getDealsForAdmin'])->name('admin.deals');
+        Route::put('/deals/reapprove/{id}', [DealController::class,'reapprove'])->name('deals.reapprove');
 
 
         //Deal routes

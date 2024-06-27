@@ -12,6 +12,7 @@ use App\Models\TempImage;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -54,6 +55,31 @@ class DealController extends Controller
         if ($request->get('manager_id')) {
             if (!empty($request->get('manager_id'))) {
                 $deals = $deals->where('user_id',$request->get('manager_id'));
+            }
+        }
+
+        if ($request->has('payment_type')) {
+            $paymentType = $request->input('payment_type');
+
+            switch ($paymentType) {
+                case 'due':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value > (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                case 'paid':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value = (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                case 'invalid':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value < (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                default:
+                    // Handle other cases if needed
+                    break;
             }
         }
 
@@ -118,6 +144,39 @@ class DealController extends Controller
                 $deals = $deals->where('user_id',$request->get('manager_id'));
             }
         }
+        // return response()->json($deals->get());
+
+        if ($request->has('payment_type')) {
+            $paymentType = $request->input('payment_type');
+
+            switch ($paymentType) {
+                case 'due':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value > (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                case 'paid':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value = (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                case 'invalid':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value < (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                    break;
+                case 'rejected':
+                    $deals = $deals->where('status',0);
+                    break;
+                default:
+                    // Handle other cases if needed
+                    break;
+            }
+        }else{
+            $deals = $deals->where('status',1);
+
+        }
 
         $deals = $deals->paginate(10);
 
@@ -148,7 +207,8 @@ class DealController extends Controller
         $deals = Deal::with('payments')
         ->withSum('payments', 'payment_value')
         ->where('user_id',Auth::id())->latest();
-        $clients = Client::get();
+
+        $clients = Client::where('user_id',Auth::id())->get();
         $sourceTypes =  SourceType::get();
 
         if ($request->get('keyword')) {
@@ -168,6 +228,31 @@ class DealController extends Controller
                 $deals = $deals->where('source_type_id',$sourceTypeId);
             }
         }
+        if ($request->has('payment_type')) {
+            $paymentType = $request->input('payment_type');
+
+            switch ($paymentType) {
+                case 'due':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value > (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                case 'paid':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value = (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                case 'invalid':
+                    $deals = $deals->whereHas('payments') ->whereRaw('deal_value < (
+                        SELECT SUM(payment_value) FROM payments WHERE payments.deal_id = deals.id
+                    )');
+                    break;
+                default:
+                    // Handle other cases if needed
+                    break;
+            }
+        }
+
 
 
         $deals = $deals->paginate(10);
@@ -373,15 +458,60 @@ class DealController extends Controller
                 'message' => 'Deal not found'
             ]);
         }
+        $validator = Validator::make($request->all(), [
+            'deal_delete' => 'required|in:DELETE'
 
-        $deal->status=0;
-        $deal->save();
-
-        session()->flash('success','Deal deleted successfully');
-        return response()->json([
-            'status' => true,
-            'message' => 'Deal deleted successfully'
         ]);
+
+        if ($validator->passes()) {
+
+            $deal->status=0;
+            $deal->save();
+
+            session()->flash('success','Deal deleted successfully');
+            return response()->json([
+                'status' => true,
+                'message' => 'Deal deleted successfully'
+            ]);
+        }else{
+            return response()->json([
+                "status"=> false,
+                "errors"=> $validator->errors()
+            ]);
+        }
+
+    }
+
+    public function reapprove($dealId, Request $request){
+        $deal =  Deal::find($dealId);
+        if(empty($deal)){
+            session()->flash('error','Deal not found');
+            return response()->json([
+                'status' => false,
+                'message' => 'Deal not found'
+            ]);
+        }
+        $validator = Validator::make($request->all(), [
+            'deal_reapprove' => 'required|in:REAPPROVE'
+
+        ]);
+
+        if ($validator->passes()) {
+
+            $deal->status=1;
+            $deal->save();
+
+            session()->flash('success','Deal deleted successfully');
+            return response()->json([
+                'status' => true,
+                'message' => 'Deal deleted successfully'
+            ]);
+        }else{
+            return response()->json([
+                "status"=> false,
+                "errors"=> $validator->errors()
+            ]);
+        }
 
     }
 }

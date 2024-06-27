@@ -16,7 +16,7 @@ return new class extends Migration
         });
 
         Schema::table('payments', function (Blueprint $table) {
-            $table->integer('status')->default(1);
+            $table->integer('status')->default(3);
         });
     }
 

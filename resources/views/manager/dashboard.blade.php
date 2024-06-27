@@ -447,10 +447,10 @@
                         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     },
                     locale: {
-                        format: 'YYYY-MM-DD'
+                        format: 'YYYY/MM/DD'
                     },
                 }, function(start, end) {
-                    $('#daterange_textbox').val(start.format('YYYY-MMM-DD') + ' - ' + end.format('YYYY-MMM-DD'));
+                    $('#daterange_textbox').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
                     $('#dashboardForm').submit();
                 });
 
@@ -470,7 +470,7 @@
                         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     },
                     locale: {
-                        format: 'YYYY-MM-DD'
+                        format: 'YYYY/MM/DD'
                     },
                 }, function(start, end) {
                     $('#daterange_textbox_v1').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
@@ -493,7 +493,7 @@
                         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     },
                     locale: {
-                        format: 'YYYY-MM-DD'
+                        format: 'YYYY/MM/DD'
                     },
                 }, function(start, end) {
                     $('#daterange_textbox_v2').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));

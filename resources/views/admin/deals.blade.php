@@ -10,15 +10,45 @@
             <div class=" overflow-hidden sm:rounded-lg p-2">
 
                 <div class="container mt-4">
+                    @include('message')
+
 
                     <div class="card">
                         <form action="" method="get" id="searchForm">
                             <div class="card-header">
                                 <div class="card-title">
-                                    <button type="button" onclick="window.location.href='{{ route('admin.dashboard') }}' " class="btn btn-default btn-sm">Reset</button>
+                                    <button type="button" onclick="window.location.href='{{ route('admin.deals') }}' " class="btn btn-default btn-sm">Reset</button>
                                 </div>
                                 <div class="card-tools">
                                     <div class="input-group input-group" style="width: 100%;">
+                                        <select id="search_status" name="search_status" class="form-control">
+                                            <option value="">All Status</option>
+
+                                            <option value="due" {{ Request::get('search_status') == "due" ? 'selected' : '' }}>
+                                                Denied
+                                            </option>
+                                            <option value="paid" {{ Request::get('search_status') == "paid" ? 'selected' : '' }}>
+                                                Approved
+                                            </option>
+
+
+                                        </select>
+                                        <select id="payment_type" name="payment_type" class="form-control">
+                                            <option value="">All</option>
+
+                                            <option value="due" {{ Request::get('payment_type') == "due" ? 'selected' : '' }}>
+                                                Due
+                                            </option>
+                                            <option value="paid" {{ Request::get('payment_type') == "paid" ? 'selected' : '' }}>
+                                                Paid
+                                            </option>
+                                            <option value="invalid" {{ Request::get('payment_type') == "invalid" ? 'selected' : '' }}>
+                                                Invalid
+                                            </option>
+                                            <option value="rejected" {{ Request::get('payment_type') == "rejected" ? 'selected' : '' }}>
+                                                Rejected
+                                            </option>
+                                        </select>
                                         <select id="client_id" name="client_id" class="form-control">
                                             <option value="">All</option>
                                             @foreach ($clients as $client)
@@ -97,8 +127,10 @@
                                           <td>{{ \Carbon\Carbon::parse($deal->deal_date)->format('jS F, Y h:i A') }}</td>
                                           <td>{{ \Carbon\Carbon::parse($deal->created_at)->format('jS F, Y h:i A') }}</td>
                                           <td>{{ \Carbon\Carbon::parse($deal->due_date)->format('jS F, Y h:i A') }}</td>
-                                          <td>{{ $deal->version }}</td>
-                                          <td>{{ $deal->deal_value }}</td>
+                                          <td style="color: {{ $deal->deal_version === 'Original' ? 'green' : 'red' }}">
+                                            {{ $deal->deal_version }}
+                                        </td>
+                                                                                  <td>{{ $deal->deal_value }}</td>
                                           <td>
                                             @php
                                                 $dueAmountFormatted = number_format($deal->due_amount, 2);
@@ -131,11 +163,15 @@
                                                             <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                             </svg>
-                                                        @endif
-                                                        @if ($payment->status == 1)
+                                                        @elseif ($payment->status == 1)
                                                             <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                             </svg>
+                                                        @else
+                                                            <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
+                                                            </svg>
+
                                                         @endif
                                                         <span class="mr-4">{{ getOrdinal($index + 1) }}</span>
 
@@ -148,7 +184,12 @@
                                           <td >
 
                                               @if ($deal->payments->isNotEmpty())
-                                                  <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="fas fa-chevron-down"></i></button>
+                                                  <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="far fa-caret-square-down"></i></button>
+                                                  @if($deal->status == 1)
+                                                  <button class="btn btn-sm btn-danger" onclick="deleteDeal('{{ $deal->id }}')"><i class="fas fa-trash-alt"></i></button>
+                                                  @elseif($deal->status == 0)
+                                                  <button class="btn btn-sm btn-success" onclick="reapproveDeal('{{ $deal->id }}')"><i class="fas fa-check"></i></button>
+                                                  @endif
 
                                               @endif
                                           </td>
@@ -166,6 +207,9 @@
                                                       <tr>
                                                           <th>Payment Date</th>
                                                           <th>Amount</th>
+                                                          <th>Payment Version</th>
+                                                          <th>Verification Status</th>
+
                                                           <th>Invoice</th>
                                                           <th>Remarks</th>
                                                           <th>Verified By</th>
@@ -181,6 +225,26 @@
 
                                                             <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
                                                             <td>{{ $payment->payment_value }}</td>
+                                                            <td style="color: {{ $payment->payment_version === 'Original' ? 'green' : 'red' }}">
+                                                                {{ $payment->payment_version }}
+                                                            </td>
+                                                            <td>
+                                                                @if ($payment->status == 0)
+                                                                    <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                @elseif ($payment->status == 1)
+                                                                    <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                @else
+                                                                    <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
+                                                                    </svg>
+
+                                                                @endif
+                                                            </td>
+
                                                             <td><a href="{{ asset('storage/payments/'.$payment->receipt_path) }}" class="blue-text" target="_blank">{{ $payment->id }} Receipt</a> </td>
                                                             <td>{{ $payment->remarks }}</td>
                                                             <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
@@ -197,7 +261,10 @@
 
                                                               <td>
                                                                   <button class="btn btn-sm btn-primary" onclick="viewPayment('{{ $payment->id }}')"><i class="fas fa-eye"></i></button>
-                                                                  <button class="btn btn-sm btn-danger" onclick="deletePayment('{{ $payment->id }}')"><i class="fas fa-delete"></i></button>
+                                                                    @if($payment->status == 1)
+                                                                  <button class="btn btn-sm btn-danger" onclick="deletePayment('{{ $payment->id }}')"><i class="fas fa-trash-alt"></i></button>
+                                                                    @elseif($payment->status==0)
+                                                                  @endif
 
                                                               </td>
                                                           </tr>
@@ -318,26 +385,113 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
+                            <form id="paymentDeleteForm" action="">
+
                             <div class="modal-body">
-                                <p>Are you sure you want to delete this product?</p>
-                                <form id="paymentDeleteForm" action="">
-                                    <div class="form-group col-md-6 col-12">
-                                        <label for="payment_id">Payment Id</label>
-                                        <input readonly type="text" id="payment_id" name="payment_id" class="form-control" required>
+                                <div class="w-full d-flex flex-column justify-content-center align-items-center">
+                                    <h5>Are you sure you want to delete this payment?</h5>
+                                <p>Type DELETE in this text field for this!</p>
+                                </div>
+
+                                    <div class="form-group col-12">
+                                        <label for="delete_payment_id">Payment Id</label>
+                                        <input readonly type="text" id="delete_payment_id" name="delete_payment_id" class="form-control" required>
                                         <p></p>
 
                                     </div>
-                                    <div class="form-group col-md-6 col-12">
-                                        <input type="text" id="delete" name="delete" class="form-control" required>
+                                    <div class="form-group col-12">
+                                        <input type="text" id="payment_delete" name="payment_delete" class="form-control" required>
                                         <p></p>
 
                                     </div>
-                                </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                                <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
                             </div>
+                        </form>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Add this modal for confirming deletion  -->
+                <div class="modal fade" id="deleteDealConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteDealConfirmationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteDealConfirmationModalLabel">Confirm Deletion</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="dealDeleteForm" action="">
+
+                            <div class="modal-body">
+                                <div class="w-full d-flex flex-column justify-content-center align-items-center">
+                                    <h5>Are you sure you want to reject this deal?</h5>
+                                    <p>Type DELETE in this text field for this!</p>
+                                </div>
+
+                                    <div class="form-group col-12">
+                                        <label for="delete_deal_id">Deal Id</label>
+                                        <input readonly type="text" id="delete_deal_id" name="delete_deal_id" class="form-control" required>
+                                        <p></p>
+
+                                    </div>
+                                    <div class="form-group col-12">
+                                        <input type="text" id="deal_delete" name="deal_delete" class="form-control" required>
+                                        <p></p>
+
+                                    </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                            </div>
+                        </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add this modal for confirming deletion  -->
+                <div class="modal fade" id="reapproveDealConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="reapproveDealConfirmationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="reapproveDealConfirmationModalLabel">Confirm Reapprove</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="dealReapproveForm" action="">
+
+                            <div class="modal-body">
+                                <div class="w-full d-flex flex-column justify-content-center align-items-center">
+                                    <h5>Are you sure you want to reapprove this deal?</h5>
+                                    <p>Type REAPPROVE in this text field for this!</p>
+                                </div>
+
+                                    <div class="form-group col-12">
+                                        <label for="reapprove_deal_id">Deal Id</label>
+                                        <input readonly type="text" id="reapprove_deal_id" name="reapprove_deal_id" class="form-control" required>
+                                        <p></p>
+
+                                    </div>
+                                    <div class="form-group col-12">
+                                        <input type="text" id="deal_reapprove" name="deal_reapprove" class="form-control" required>
+                                        <p></p>
+
+                                    </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success" id="confirmDeleteBtn">Reapprove</button>
+                            </div>
+                        </form>
+
                         </div>
                     </div>
                 </div>
@@ -352,20 +506,61 @@
     @section('customJs')
         <script>
 
-            function deletePayment(id) {
-                var url = '{{ route('deals.destroy', "ID") }}';
+            function reapproveDeal(id) {
+                var url = '{{ route('deals.reapprove', "ID") }}';
                 var newUrl = url.replace("ID", id);
-                $('#payment_id').val($id);
+                $('#reapprove_deal_id').val(id);
 
-                // Show the delete confirmation modal
-                $('#deletePaymentConfirmationModal').modal('show');
+                // Show the reapprove confirmation modal
+                $('#reapproveDealConfirmationModal').modal('show');
 
                 // Handle the click on the "Delete" button in the modal
-                $("#editPaymentForm").submit(function(event){
+                $("#dealReapproveForm").submit(function(event){
                     event.preventDefault();
-                    var element = $("#editPaymentForm");
+                    var element = $("#dealReapproveForm");
                     // Close the modal
-                    $('#deletePaymentConfirmationModal').modal('hide');
+                    $("button[type=submit]").prop('disabled',true);
+
+                    // Perform the reapprove action
+                    $.ajax({
+                        url: newUrl,
+                        type: 'put',
+                        data: element.serializeArray(),
+                        dataType: 'json',
+                        success: function(response) {
+                            $("button[type=submit]").prop('disabled', false);
+                            if(response.status == true){
+
+                                window.location.href = "{{ route('admin.deals') }}";
+                            }else{
+                                var errors = response['errors'];
+
+                                handleFieldError('deal_reapprove', errors);
+
+                            }
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    });
+                });
+            }
+
+
+            function deleteDeal(id) {
+                var url = '{{ route('deals.destroy', "ID") }}';
+                var newUrl = url.replace("ID", id);
+                $('#delete_deal_id').val(id);
+
+                // Show the delete confirmation modal
+                $('#deleteDealConfirmationModal').modal('show');
+
+                // Handle the click on the "Delete" button in the modal
+                $("#dealDeleteForm").submit(function(event){
+                    event.preventDefault();
+                    var element = $("#dealDeleteForm");
+                    // Close the modal
+                    $("button[type=submit]").prop('disabled',true);
 
                     // Perform the delete action
                     $.ajax({
@@ -375,13 +570,75 @@
                         dataType: 'json',
                         success: function(response) {
                             $("button[type=submit]").prop('disabled', false);
-                            window.location.href = "{{ route('admins.deals') }}";
+                            if(response.status == true){
+
+                                window.location.href = "{{ route('admin.deals') }}";
+                            }else{
+                                var errors = response['errors'];
+
+                                handleFieldError('deal_delete', errors);
+
+                            }
                         },
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                     });
                 });
+            }
+
+            function deletePayment(id) {
+                var url = '{{ route('payments.destroy', "ID") }}';
+                var newUrl = url.replace("ID", id);
+                $('#delete_payment_id').val(id);
+
+                // Show the delete confirmation modal
+                $('#deletePaymentConfirmationModal').modal('show');
+
+                // Handle the click on the "Delete" button in the modal
+                $("#paymentDeleteForm").submit(function(event){
+                    event.preventDefault();
+                    var element = $("#paymentDeleteForm");
+                    // Close the modal
+                    $("button[type=submit]").prop('disabled',true);
+
+                    // Perform the delete action
+                    $.ajax({
+                        url: newUrl,
+                        type: 'delete',
+                        data: element.serializeArray(),
+                        dataType: 'json',
+                        success: function(response) {
+                            $("button[type=submit]").prop('disabled', false);
+                            if(response.status == true){
+
+                                window.location.href = "{{ route('admin.deals') }}";
+                            }else{
+                                var errors = response['errors'];
+
+                                handleFieldError('payment_delete', errors);
+
+                            }
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    });
+                });
+            }
+
+
+            function handleFieldError(fieldName, errors) {
+                var fieldElement = $("#" + fieldName);
+                var errorElement = fieldElement.siblings('p');
+
+                if (errors[fieldName]) {
+                    fieldElement.addClass('is-invalid');
+                    errorElement.addClass('invalid-feedback').html(errors[fieldName][0]);
+                } else {
+                    fieldElement.removeClass('is-invalid');
+                    errorElement.removeClass('invalid-feedback').html("");
+                }
             }
 
 
@@ -547,7 +804,7 @@
             // jQuery document ready function to ensure DOM is fully loaded
             $(document).ready(function() {
                 // Bind change event to both select elements
-                $('#client_id, #team_id, #manager_id').change(function() {
+                $('#client_id, #team_id, #manager_id,#payment_type').change(function() {
                     // Submit the form with id 'searchForm'
                     $('#searchForm').submit();
                 });

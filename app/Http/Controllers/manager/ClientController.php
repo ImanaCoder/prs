@@ -5,16 +5,17 @@ namespace App\Http\Controllers\manager;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ClientController extends Controller
 {
     public function index(Request $request){
-        $clients = Client::latest();
+        $clients = Client::where('user_id',Auth::id())->latest();
 
         if ($request->get('keyword')) {
             if (!empty($request->get('keyword'))) {
-                $clients = $clients->where('remarks', 'like', '%' . $request->get('keyword') . '%');
+                $clients = $clients->where('name', 'like', '%' . $request->get('keyword') . '%');
             }
         }
 

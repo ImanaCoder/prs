@@ -2,23 +2,23 @@
     <!-- Primary Navigation Menu -->
     <div class="max-w-8xl mx-xl-5 mx-2 px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex align-items-center">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center mr-3">
                     @role('admin')
                         <a href="{{ route('admin.dashboard') }}">
-                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                            <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
                         </a>
                     @endrole
                     @role('verifier')
                         <a href="{{ route('verifier.dashboard') }}">
-                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                            <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
                         </a>
 
                     @endrole
                     @role('sales_manager')
                         <a href="{{ route('manager.dashboard') }}">
-                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                            <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
                         </a>
                     @endrole
 

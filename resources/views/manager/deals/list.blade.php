@@ -10,6 +10,8 @@
             <div class=" overflow-hidden sm:rounded-lg p-xl-5 p-2">
 
                 <div class="container mt-4">
+                    @include('message')
+
                     <div class="d-flex justify-content-end w-full">
                         <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addModal">Add Deal</button>
                     </div>
@@ -21,6 +23,19 @@
                                 </div>
                                 <div class="card-tools">
                                     <div class="input-group input-group" style="width: 100%;">
+                                        <select id="payment_type" name="payment_type" class="form-control">
+                                            <option value="">All</option>
+
+                                            <option value="due" {{ Request::get('payment_type') == "due" ? 'selected' : '' }}>
+                                                Due
+                                            </option>
+                                            <option value="paid" {{ Request::get('payment_type') == "paid" ? 'selected' : '' }}>
+                                                Paid
+                                            </option>
+                                            <option value="invalid" {{ Request::get('payment_type') == "invalid" ? 'selected' : '' }}>
+                                            Invalid
+                                            </option>
+                                        </select>
                                         <select id="search_client_id" name="search_client_id" class="form-control" style="width:200px">
                                             <option value="">All Clients</option>
                                             @foreach ($clients as $client)
@@ -96,8 +111,10 @@
                                           <td>{{ \Carbon\Carbon::parse($deal->deal_date)->format('jS F, Y h:i A') }}</td>
                                           <td>{{ \Carbon\Carbon::parse($deal->created_at)->format('jS F, Y h:i A') }}</td>
                                           <td>{{ \Carbon\Carbon::parse($deal->due_date)->format('jS F, Y h:i A') }}</td>
-                                          <td>{{ $deal->version }}</td>
-                                          <td>{{ $deal->deal_value }}</td>
+                                          <td style="color: {{ $deal->deal_version === 'Original' ? 'green' : 'red' }}">
+                                            {{ $deal->deal_version }}
+                                        </td>
+                                        <td>{{ $deal->deal_value }}</td>
                                           <td>
                                             @php
                                                 $dueAmountFormatted = number_format($deal->due_amount, 2);
@@ -130,15 +147,14 @@
                                                             <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                             </svg>
-                                                        @endif
-                                                        @if ($payment->status == 1)
+                                                        @elseif ($payment->status == 1)
                                                             <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                             </svg>
                                                         @else
-                                                        <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
-                                                          </svg>
+                                                            <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
+                                                            </svg>
 
                                                         @endif
                                                         <span class="mr-4">{{ getOrdinal($index + 1) }}</span>
@@ -152,7 +168,7 @@
                                               <button class="btn btn-sm btn-primary"  onclick="editDeal('{{ $deal->id }}')" ><i class="fas fa-edit"></i></button>
                                               <button class="btn btn-sm btn-success" onclick="addPayment('{{ $deal->id }}')"><i class="fas fa-plus"></i></button>
                                               @if ($deal->payments->isNotEmpty())
-                                              <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="fas fa-chevron-down"></i></button>
+                                              <button class="btn btn-sm btn-info" onclick="toggleSubTable(this)"><i class="far fa-caret-square-down"></i></button>
 
                                               @endif
                                           </td>
@@ -172,6 +188,9 @@
                                                           <th>Amount</th>
                                                           <th>Invoice</th>
                                                           <th>Remarks</th>
+                                                          <th>Payment Version</th>
+                                                          <th>Verification Status</th>
+
                                                           <th>Verified By</th>
                                                           <th>Verified At</th>
                                                           <th>Verification Receipt</th>
@@ -187,6 +206,25 @@
                                                             <td>{{ $payment->payment_value }}</td>
                                                             <td><a href="{{ asset('storage/payments/'.$payment->receipt_path) }}" class="blue-text" target="_blank">{{ $payment->id }} Receipt</a> </td>
                                                             <td>{{ $payment->remarks }}</td>
+                                                            <td style="color: {{ $payment->payment_version === 'Original' ? 'green' : 'red' }}">
+                                                                {{ $payment->payment_version }}
+                                                            </td>
+                                                            <td>
+                                                                @if ($payment->status == 0)
+                                                                    <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                @elseif ($payment->status == 1)
+                                                                    <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                @else
+                                                                    <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
+                                                                    </svg>
+
+                                                                @endif
+                                                            </td>
                                                             <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
                                                             <td>{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('jS F, Y h:i A') : "N/A" }}</td>
                                                             <td >
@@ -968,7 +1006,7 @@
             // jQuery document ready function to ensure DOM is fully loaded
             $(document).ready(function() {
                 // Bind change event to both select elements
-                $('#search_source_type_id, #search_client_id').change(function() {
+                $('#search_source_type_id, #search_client_id,#payment_type').change(function() {
                     // Submit the form with id 'searchForm'
                     $('#searchForm').submit();
                 });

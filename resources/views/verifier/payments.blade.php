@@ -10,6 +10,7 @@
             <div class=" overflow-hidden sm:rounded-lg p-xl-5 p-2">
 
                 <div class="container mt-4">
+                    @include('message')
 
 
                     <div class="card">
@@ -20,6 +21,13 @@
                                 </div>
                                 <div class="card-tools">
                                     <div class="input-group input-group" style="width: 100%;">
+                                        <select id="verification_status" name="verification_status" class="form-control">
+                                            <option value="">All </option>
+                                            <option value="pending"  {{ Request::get('verification_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="verified"  {{ Request::get('verification_status') == 'verified' ? 'selected' : '' }}>Verified</option>
+                                            <option value="denied"  {{ Request::get('verification_status') == 'denied' ? 'selected' : '' }}>Denied</option>
+
+                                        </select>
 
                                         <select id="deal_id" name="deal_id" class="form-control">
                                             <option value="">All Deals</option>
@@ -59,6 +67,14 @@
                                     <th>Payment Date</th>
                                     <th>Requested By</th>
                                     <th>Receipt Link</th>
+                                    <th>Payment Date</th>
+                                    <th>Amount</th>
+                                    <th>Remarks</th>
+                                    <th>Payment Version</th>
+                                    <th>Verification Status</th>
+                                    <th>Verified By</th>
+                                    <th>Verified At</th>
+                                    <th>Verification Receipt</th>
                                     <th>Action</th>
 
                                   </tr>
@@ -74,7 +90,38 @@
                                       <td>{{ $payment->deal->client->name }}</td>
                                       <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
                                       <td>{{ $payment->deal->user->name }}</td>
+                                      <td><a href="{{ asset('storage/payments/'.$payment->receipt_path) }}" class="blue-text" target="_blank">{{ $payment->id }} Receipt</a> </td>
+                                      <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('jS F, Y h:i A') }}</td>
+                                      <td>{{ $payment->payment_value }}</td>
                                       <td>{{ $payment->remarks }}</td>
+                                      <td style="color: {{ $payment->payment_version === 'Original' ? 'green' : 'red' }}">
+                                          {{ $payment->payment_version }}
+                                      </td>
+                                      <td>
+                                        @if ($payment->status == 0)
+                                            <svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        @elseif ($payment->status == 1)
+                                            <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        @else
+                                            <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
+                                            </svg>
+
+                                        @endif
+                                    </td>
+                                      <td>{{ $payment->verified_by_id ? $payment->verified_by->name : "N/A" }}</td>
+                                      <td>{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('jS F, Y h:i A') : "N/A" }}</td>
+                                      <td>
+                                        @if($payment->verification_receipt_path != null)
+                                        <a href="{{ asset('storage/payments/verification-receipts/'.$payment->verification_receipt_path) }}" class="blue-text" target="_blank">{{ $payment->id }}Verification Receipt</a>
+                                        @else
+                                        N/A
+                                        @endif
+                                      </td>
                                       <td>
                                           <button class="btn btn-sm btn-primary" onclick="approvePayment('{{ $payment->id }}')" ><i class="fas fa-edit"></i></button>
                                       </td>
@@ -153,18 +200,20 @@
                                                 <label for="verification_remarks">Remarks</label>
                                                 <textarea id="verification_remarks" name="verification_remarks" class="form-control" required></textarea>
                                             </div>
-                                            <div class="form-group col-md-6" id="verification_form_group" style="display: none;">
-                                                <input type="hidden" id="verification_receipt_id" name="verification_receipt_id" value="">
-                                                <label for="verification_receipt">Verification Receipt</label>
-                                                <div id="verification_receipt" class="dropzone dz-clickable">
-                                                    <div class="dz-message needsclick">
-                                                        <br>Drop files here or click to upload. <br><br>
+                                            <div id="verification_form_group" >
+                                                <div class="form-group col-md-6" style="display: none;">
+                                                    <input type="hidden" id="verification_receipt_id" name="verification_receipt_id" value="">
+                                                    <label for="verification_receipt">Verification Receipt</label>
+                                                    <div id="verification_receipt" class="dropzone dz-clickable">
+                                                        <div class="dz-message needsclick">
+                                                            <br>Drop files here or click to upload. <br><br>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="form-group col-md-6">
-                                                <div class="d-flex justify-content-center align-items-center">
-                                                    <img id="verification_receipt_image_path" src="" />
+                                                <div class="form-group col-md-6">
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <img id="verification_receipt_image_path" src="" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -328,7 +377,7 @@
                     if(response["status"] == true) {
                         $(".error").removeClass('invalid-feedback');
                         $('input[type="text"], select').removeClass('is-invalid');
-                        window.location.href="{{ route('deals.index') }}";
+                        window.location.href="{{ route('payments.index') }}";
 
                     }else{
 
@@ -351,6 +400,7 @@
                 }
             });
         });
+        Dropzone.autoDiscover = false;
 
         const dropzone1 = $("#verification_receipt").dropzone({
             init: function() {
@@ -359,7 +409,6 @@
                         this.removeFile(this.files[0]);
                     }
                 })
-                $("button[type=submit]").prop('disabled',true);
 
             },
             url: "{{ route('temp-images.create') }}",
@@ -393,7 +442,7 @@
         // jQuery document ready function to ensure DOM is fully loaded
         $(document).ready(function() {
             // Bind change event to both select elements
-            $('#client_id, #deal_id').change(function() {
+            $('#client_id, #deal_id,#verification_status').change(function() {
                 // Submit the form with id 'searchForm'
                 $('#searchForm').submit();
             });

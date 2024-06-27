@@ -10,6 +10,8 @@
             <div class=" overflow-hidden sm:rounded-lg p-2">
 
                 <div class="container mt-4">
+                    @include('message')
+
                     <div class="d-flex justify-content-end w-full">
                         <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addUser">Add User</button>
                     </div>

@@ -27,11 +27,8 @@ class PaymentController extends Controller
             }
         }
 
-        if ($request->get('deal_id')) {
-            if (!empty($request->get('deal_id'))) {
-                $payments = $payments->where('deal_id',$request->get('deal_id'));
-            }
-        }
+        $dealId=$request->get('deal_id');
+
         if ($request->get('client_id')) {
             if (!empty($request->get('client_id'))) {
                 // Assuming $request->get('team_id') contains the team ID you want to filter by
@@ -39,6 +36,45 @@ class PaymentController extends Controller
                 $payments = $payments->whereHas('deal', function ($query) use ($clientId) {
                     $query->where('client_id', $clientId);
                 });
+            }
+
+            $deals=Deal::where('client_id',$request->get('client_id'))->get();
+            $dealIds = $deals->pluck('id')->toArray(); // Extracting deal ids from $deals collection
+
+            if (!in_array($dealId, $dealIds)) {
+                $dealId = null;
+            }
+        }
+        if ( $dealId) {
+            if (!empty( $dealId)) {
+                $payments = $payments->where('deal_id', $dealId);
+            }
+        }
+
+
+
+        if ($request->get('verification_status')) {
+            if (!empty($request->get('verification_status'))) {
+                // Assuming $request->get('team_id') contains the team ID you want to filter by
+                $verificationStatus = $request->get('verification_status');
+                switch ($verificationStatus) {
+                    case 'denied':
+                        $payments = $payments->where('status', 0);
+
+                        break;
+                    case 'verified':
+                        $payments = $payments->where('status', 1);
+
+                        break;
+                    case 'pending':
+                        $payments = $payments->where('status', 3);
+
+                        break;
+                    default:
+                        // Handle other cases if needed
+                        break;
+                }
+
             }
         }
 
@@ -189,18 +225,32 @@ class PaymentController extends Controller
         if(empty($payment)){
             session()->flash('error','Payment not found');
             return response()->json([
-                'status' => false,
+                'status' => true,
                 'message' => 'Payment not found'
             ]);
         }
 
-        $payment->delete();
+        $validator = Validator::make($request->all(), [
+            'payment_delete' => 'required|in:DELETE'
 
-        session()->flash('success','Payment deleted successfully');
-        return response()->json([
-            'status' => true,
-            'message' => 'Payment deleted successfully'
         ]);
+
+            if ($validator->passes()) {
+
+            $payment->delete();
+
+            session()->flash('success','Payment deleted successfully');
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment deleted successfully'
+            ]);
+        }else{
+            return response()->json([
+                "status"=> false,
+                "errors"=> $validator->errors()
+            ]);
+        }
+
 
     }
 
@@ -215,10 +265,9 @@ class PaymentController extends Controller
             ]);
         }
         $validator = Validator::make($request->all(), [
-            'verification_remarks'=> 'required|max:255',
+            'verification_remarks' => 'required|max:255',
             'status' => 'required',
-            'verification_receipt_id' => 'required',
-
+            'verification_receipt_id' => 'required_if:status,1', // validation rule for verification_receipt_id
         ]);
 
         if ($validator->passes()) {
@@ -249,11 +298,24 @@ class PaymentController extends Controller
                 $payment->save();
             }
 
-            session()->flash('success','Payment deleted successfully');
-            return response()->json([
-                'status' => true,
-                'message' => 'Payment deleted successfully'
-            ]);
+            if($request->input('status') == 1 || $request->input('status')=='1'){
+                $payment->status=1;
+
+                session()->flash('success','Payment verified successfully');
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Payment verified successfully'
+                ]);
+            }else{
+                $payment->status=0;
+
+                session()->flash('success','Payment denied successfully');
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Payment denied successfully'
+                ]);
+            }
+
         }else{
             return response()->json([
                 "status"=> false,
@@ -262,4 +324,5 @@ class PaymentController extends Controller
         }
 
     }
+
 }

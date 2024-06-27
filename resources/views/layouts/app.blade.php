@@ -105,6 +105,7 @@
 
             <!-- Page Content -->
             <main style="font-size:12px;">
+
                 {{ $slot }}
             </main>
         </div>
