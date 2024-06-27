@@ -111,7 +111,7 @@ class PaymentController extends Controller
     }
 
     public function edit($paymentId, Request $request) {
-        $payment = Payment::find($paymentId);
+        $payment = Payment::with('verified_by')->find($paymentId);
         if(empty($payment)){
             session()->flash('error','Payment not found');
 
@@ -135,7 +135,7 @@ class PaymentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'deal_id'=> 'required|exists:deals,id',
-            'receipt_id' => 'required',
+            'receipt_id' => 'nullable',
             'payment_date' => 'required|date',
             'payment_value' => 'required|numeric',
             'remarks' => 'required'

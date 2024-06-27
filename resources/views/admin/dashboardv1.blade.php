@@ -22,9 +22,9 @@
                                             </div>
                                             <div class="card-tools">
                                                 <select id="today_team_id" name="today_team_id"  class="form-control mb-2" style="width:200px">
-                                                    <option value="">All</option>
+                                                    <option value="">All Teams</option>
                                                     @foreach ($teams as $team)
-                                                        <option value="{{ $team->id }}" {{ Request::get('team_id') == $team->id ? 'selected' : '' }}>
+                                                        <option value="{{ $team->id }}" {{ Request::get('today_team_id') == $team->id ? 'selected' : '' }}>
                                                             {{ $team->name }}
                                                         </option>
                                                     @endforeach
@@ -72,7 +72,8 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
-                                            <div class="d-flex justify-content-center">
+                                            <div class="clearfix" style="padding: .75rem 1.25rem; background-color: rgba(0, 0, 0, .03);border-top: 0 solid rgba(0, 0, 0, .125);">
+
                                                 {{ $salesToday->links() }}
                                             </div>
                                         </div>
@@ -90,7 +91,7 @@
                                             </div>
                                             <div class="card-tools" >
                                                 <select id="team_id" name="team_id" class="form-control mb-2" style="width:200px">
-                                                    <option value="">All</option>
+                                                    <option value="">All Teams</option>
                                                     @foreach ($teams as $team)
                                                         <option value="{{ $team->id }}" {{ Request::get('team_id') == $team->id ? 'selected' : '' }}>
                                                             {{ $team->name }}
@@ -144,7 +145,7 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
-                                            <div class="d-flex justify-content-center">
+                                            <div class="clearfix" style="padding: .75rem 1.25rem; background-color: rgba(0, 0, 0, .03);border-top: 0 solid rgba(0, 0, 0, .125);">
                                                 {{ $salesThisMonth->links() }}
                                             </div>
                                         </div>
@@ -162,7 +163,7 @@
                             <div class="card-header">
                                 <div class="card-tools">
                                  <select id="manager_id" name="manager_id" class="form-control">
-                                    <option value="">All</option>
+                                    <option value="">All Managers</option>
                                     @foreach ($managers as $manager)
                                         <option value="{{ $manager->id }}" {{ Request::get('manager_id') == $manager->id ? 'selected' : '' }}>
                                             {{ $manager->name }}
@@ -201,84 +202,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="tab-content">
+                                                    <div id="denied" class="tab-pane fade show active">
+                                                        <div class="card-body">
 
-                                                <div class="card-body">
-
-                                                    <div class="tab-content">
-                                                        <div id="denied" class="tab-pane fade show active">
-                                                            @if ($rejectedPayments->isNotEmpty())
-                                                                @foreach ($rejectedPayments as $payment)
-                                                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
-                                                                        <div class="d-flex align-items-center">
-                                                                            <div class="status-circle
-                                                                                @if ($payment['status'] == 0) status-red
-                                                                                @elseif ($payment['status'] == 1) status-green
-                                                                                @elseif ($payment['status'] == 3) status-yellow
-                                                                                @endif
-                                                                            ">
-                                                                                <i class="fas fa-info"></i>
-                                                                            </div>
-                                                                            <div class="ml-3">
-                                                                                <div>
-                                                                                    @if ($payment['remarks'])
-                                                                                        {{ $payment['remarks'] }}
-                                                                                    @elseif ($payment['verification_remarks'])
-                                                                                        {{ $payment['verification_remarks'] }}
-                                                                                    @endif
-                                                                                </div>
-                                                                                <div class="text-muted">{{ $payment['created_at'] }}</div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="text-right">
-                                                                            <strong>${{ number_format($payment['payment_value'], 2) }}</strong>
-                                                                        </div>
-                                                                    </div>
-                                                                @endforeach
-                                                                <div class="d-flex justify-content-center">
-                                                                    {{ $rejectedPayments->links() }}
-                                                                </div>
-                                                            @else
-                                                                <div class="alert alert-info">No payments available.</div>
-                                                            @endif
-                                                        </div>
-                                                        <div id="pending" class="tab-pane fade">
-                                                            @if ($pendingPayments->isNotEmpty())
-                                                                @foreach ($pendingPayments as $payment)
-                                                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
-                                                                        <div class="d-flex align-items-center">
-                                                                            <div class="status-circle
-                                                                                @if ($payment['status'] == 0) status-red
-                                                                                @elseif ($payment['status'] == 1) status-green
-                                                                                @elseif ($payment['status'] == 3) status-yellow
-                                                                                @endif
-                                                                            ">
-                                                                                <i class="fas fa-info"></i>
-                                                                            </div>
-                                                                            <div class="ml-3">
-                                                                                <div>
-                                                                                    @if ($payment['remarks'])
-                                                                                        {{ $payment['remarks'] }}
-                                                                                    @elseif ($payment['verification_remarks'])
-                                                                                        {{ $payment['verification_remarks'] }}
-                                                                                    @endif
-                                                                                </div>
-                                                                                <div class="text-muted">{{ $payment['created_at'] }}</div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="text-right">
-                                                                            <strong>${{ number_format($payment['payment_value'], 2) }}</strong>
-                                                                        </div>
-                                                                    </div>
-                                                                @endforeach
-                                                                <div class="d-flex justify-content-center">
-                                                                    {{ $pendingPayments->links() }}
-                                                                </div>
-                                                            @else
-                                                                <div class="alert alert-info">No payments available.</div>
-                                                            @endif
-                                                        </div>
-                                                        <div id="verified" class="tab-pane fade">
-                                                            @foreach ($verifiedPayments as $payment)
+                                                        @if ($rejectedPayments->isNotEmpty())
+                                                            @foreach ($rejectedPayments as $payment)
                                                                 <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
                                                                     <div class="d-flex align-items-center">
                                                                         <div class="status-circle
@@ -297,27 +226,37 @@
                                                                                     {{ $payment['verification_remarks'] }}
                                                                                 @endif
                                                                             </div>
-                                                                            <div class="text-muted">{{ $payment['created_at'] }}</div>
-                                                                        </div>
+                                                                            <div class="text-muted">
+                                                                                {{ \Carbon\Carbon::parse($payment['created_at'])->translatedFormat('j F, Y g:i A') }}
+                                                                            </div>                                                                            </div>
                                                                     </div>
-                                                                    <div class="text-right">
+                                                                    <div class="text-right clearfix">
                                                                         <strong>${{ number_format($payment['payment_value'], 2) }}</strong>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
-                                                            <div class="d-flex justify-content-center">
-                                                                {{ $verifiedPayments->links() }}
-                                                            </div>
+
+                                                        @else
+                                                            <div class="alert alert-info">No payments available.</div>
+                                                        @endif
                                                         </div>
-                                                        <div id="all" class="tab-pane fade">
-                                                            @foreach ($payments as $payment)
+                                                        <div class="card-footer clearfix">
+                                                            {{ $rejectedPayments->links() }}
+
+                                                        </div>
+                                                    </div>
+                                                    <div id="pending" class="tab-pane fade">
+                                                        <div class="card-body">
+
+                                                        @if ($pendingPayments->isNotEmpty())
+                                                            @foreach ($pendingPayments as $payment)
                                                                 <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
                                                                     <div class="d-flex align-items-center">
                                                                         <div class="status-circle
                                                                             @if ($payment['status'] == 0) status-red
                                                                             @elseif ($payment['status'] == 1) status-green
                                                                             @elseif ($payment['status'] == 3) status-yellow
-                                                                                                                                @endif
+                                                                            @endif
                                                                         ">
                                                                             <i class="fas fa-info"></i>
                                                                         </div>
@@ -329,18 +268,111 @@
                                                                                     {{ $payment['verification_remarks'] }}
                                                                                 @endif
                                                                             </div>
-                                                                            <div class="text-muted">{{ $payment['created_at'] }}</div>
-                                                                        </div>
+                                                                            <div class="text-muted">
+                                                                                {{ \Carbon\Carbon::parse($payment['created_at'])->translatedFormat('j F, Y g:i A') }}
+                                                                            </div>                                                                            </div>
                                                                     </div>
                                                                     <div class="text-right">
                                                                         <strong>${{ number_format($payment['payment_value'], 2) }}</strong>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
-                                                            <div class="d-flex justify-content-center">
-                                                                {{ $payments->links() }}
-                                                            </div>
+
+                                                        @else
+                                                            <div class="alert alert-info">No payments available.</div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="card-footer clearfix">
+                                                        {{ $pendingPayments->links() }}
+
+                                                    </div>
+
+                                                    </div>
+                                                    <div id="verified" class="tab-pane fade">
+                                                        <div class="card-body">
+                                                            @if ($verifiedPayments->isNotEmpty())
+
+
+                                                                @foreach ($verifiedPayments as $payment)
+                                                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="status-circle
+                                                                                @if ($payment['status'] == 0) status-red
+                                                                                @elseif ($payment['status'] == 1) status-green
+                                                                                @elseif ($payment['status'] == 3) status-yellow
+                                                                                @endif
+                                                                            ">
+                                                                                <i class="fas fa-info"></i>
+                                                                            </div>
+                                                                            <div class="ml-3">
+                                                                                <div>
+                                                                                    @if ($payment['remarks'])
+                                                                                        {{ $payment['remarks'] }}
+                                                                                    @elseif ($payment['verification_remarks'])
+                                                                                        {{ $payment['verification_remarks'] }}
+                                                                                    @endif
+                                                                                </div>
+                                                                                <div class="text-muted">
+                                                                                    {{ \Carbon\Carbon::parse($payment['created_at'])->translatedFormat('j F, Y g:i A') }}
+                                                                                </div>                                                                                </div>
+                                                                        </div>
+                                                                        <div class="d-flex justify-content-end clearfix">
+                                                                            <strong>${{ number_format($payment['payment_value'], 2) }}</strong>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                            <div class="alert alert-info">No payments available.</div>
+                                                            @endif
                                                         </div>
+                                                        <div class="card-footer clearfix">
+                                                            {{ $verifiedPayments->links() }}
+
+                                                        </div>
+                                                    </div>
+                                                    <div id="all" class="tab-pane fade">
+                                                        <div class="card-body">
+                                                            @if ($payments->isNotEmpty())
+
+
+                                                                @foreach ($payments as $payment)
+                                                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="status-circle
+                                                                                @if ($payment['status'] == 0) status-red
+                                                                                @elseif ($payment['status'] == 1) status-green
+                                                                                @elseif ($payment['status'] == 3) status-yellow
+                                                                                                                                    @endif
+                                                                            ">
+                                                                                <i class="fas fa-info"></i>
+                                                                            </div>
+                                                                            <div class="ml-3">
+                                                                                <div>
+                                                                                    @if ($payment['remarks'])
+                                                                                        {{ $payment['remarks'] }}
+                                                                                    @elseif ($payment['verification_remarks'])
+                                                                                        {{ $payment['verification_remarks'] }}
+                                                                                    @endif
+                                                                                </div>
+                                                                                <div class="text-muted">
+                                                                                    {{ \Carbon\Carbon::parse($payment['created_at'])->translatedFormat('j F, Y g:i A') }}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <strong>${{ number_format($payment['payment_value'], 2) }}</strong>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div class="alert alert-info">No payments available.</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="card-footer clearfix">
+                                                            {{ $payments->links() }}
+
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -358,10 +390,63 @@
                                     </div>
                                     <div class="col-md-6 mb-4">
                                         <div class="card">
-                                            <div class="card-body">
-                                                <h3 class="card-title">Top Works</h3>
-                                                <!-- Content for top works -->
+                                            <div class="card-header">
+                                                <div class="card-title">Source Type</div>
+                                                <div class="card-tools justify-content-end d-flex flex-wrap align-items-center">
+                                                    <input type="text" id="daterange_textbox_v1" name="top_works_daterange_v1" class="form-control" readonly value="{{ request()->input('top_works_daterange_v1', date('Y-m-d')) }}" style="width:200px" />
+                                                    <p class="mx-2"> VS</p>
+                                                    <input type="text" id="daterange_textbox_v2" name="top_works_daterange_v2" class="form-control" readonly value="{{ request()->input('top_works_daterange_v2', date('Y-m-d')) }}" style="width:200px" />
+
+                                                </div>
                                             </div>
+                                            <div class="card-body">
+                                                <div class="container mt-4">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Work Type</th>
+                                                                            <th>Change</th>
+                                                                            <th>V2 Count</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($jsonList as $item)
+                                                                        <tr>
+                                                                            <td>{{ $item['name'] }}</td>
+                                                                            <td class="row">
+                                                                                {{ $item['v1Count'] }} Deals
+                                                                                <div class="ml-2">
+                                                                                    @if ($item['increase_or_decrease'] > 0)
+                                                                                    <span class="text-success">
+                                                                                        <i class="fas fa-arrow-up"></i> Increased
+                                                                                    </span>
+                                                                                @elseif ($item['increase_or_decrease'] < 0)
+                                                                                    <span class="text-danger">
+                                                                                        <i class="fas fa-arrow-down"></i> Decreased
+                                                                                    </span>
+                                                                                @else
+                                                                                    <span class="text-info">No Change</span>
+                                                                                @endif
+                                                                                <br>({{ number_format($item['percentage'], 2) }}%)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>{{ $item['v2Count'] }} Deals</td>
+                                                                        </tr>
+                                                                        @endforeach
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -461,6 +546,80 @@
         function submitForm() {
             document.getElementById('dashboardForm').submit();
         }
+
+        // Ensure the active tab is retained when clicking pagination links
+        $(document).ready(function() {
+            // Get the current active tab from local storage, if available
+            var activeTab = localStorage.getItem('activeTab');
+            if (activeTab) {
+                $('.nav-link').removeClass('active'); // Remove active class from all nav links
+                $('.tab-pane').removeClass('show active'); // Remove show and active classes from all tab panes
+                $(activeTab).addClass('show active'); // Add show and active classes to the stored active tab
+                $('a[href="' + activeTab + '"]').addClass('active'); // Add active class to the corresponding nav link
+            }
+
+            // Store the active tab in local storage when a tab is clicked
+            $('.nav-link').click(function() {
+                var tabId = $(this).attr('href');
+                localStorage.setItem('activeTab', tabId);
+            });
+        });
+
+        $(document).ready(function() {
+                $('#daterange_textbox_v1').daterangepicker({
+                    showDropdowns: true,
+                    autoApply: true,
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                }, function(start, end) {
+                    $('#daterange_textbox_v1').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                    $('#dashboardForm').submit();
+                });
+
+
+            });
+
+            $(document).ready(function() {
+                $('#daterange_textbox_v2').daterangepicker({
+                    showDropdowns: true,
+                    autoApply: true,
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                }, function(start, end) {
+                    $('#daterange_textbox_v2').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                    $('#dashboardForm').submit();
+                });
+
+
+            });
+
+            // jQuery document ready function to ensure DOM is fully loaded
+            $(document).ready(function() {
+                // Bind change event to both select elements
+                $('#today_team_id, #team_id, #manager_id').change(function() {
+                    // Submit the form with id 'searchForm'
+                    $('#dashboardForm').submit();
+                });
+            });
+
         </script>
     @endsection
 </x-app-layout>

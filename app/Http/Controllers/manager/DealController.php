@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Validator;
 class DealController extends Controller
 {
     public function getDealsForVerifier(Request $request){
-        $deals = Deal::with('payments','user','client')->latest();
+        $deals = Deal::with('payments','user','client')        ->withSum('payments', 'payment_value')
+        ->latest();
         // return response()->json([$deals]);
 
         $clients = Client::get();
@@ -56,13 +57,32 @@ class DealController extends Controller
             }
         }
 
+
+
         $deals = $deals->paginate(10);
+
+
+        $deals->getCollection()->transform(function ($deal) {
+            // Calculate due_amount as deal_value - sum of payment_value
+            $dueAmount = $deal->deal_value - $deal->payments_sum_payment_value;
+            $deal->due_amount = $dueAmount;
+            // Determine due_status based on due_amount
+            if ($dueAmount < 0) {
+                $deal->due_status = 2; // Negative due_amount
+            } elseif ($dueAmount == 0) {
+                $deal->due_status = 1; // Zero due_amount
+            } else {
+                $deal->due_status = 0; // Positive due_amount
+            }
+            return $deal;
+        });
 
         return view("verifier.deals", compact('deals','teams','clients','sourceTypes','managers'));
     }
 
     public function getDealsForAdmin(Request $request){
-        $deals = Deal::with('payments','user','client')->latest();
+        $deals = Deal::with('payments','user','client')        ->withSum('payments', 'payment_value')
+        ->latest();
         // return response()->json([$deals]);
 
         $clients = Client::get();
@@ -101,11 +121,33 @@ class DealController extends Controller
 
         $deals = $deals->paginate(10);
 
+
+        $deals->getCollection()->transform(function ($deal) {
+            // Calculate due_amount as deal_value - sum of payment_value
+            $dueAmount = $deal->deal_value - $deal->payments_sum_payment_value;
+            $deal->due_amount = $dueAmount;
+            // Determine due_status based on due_amount
+            if ($dueAmount < 0) {
+                $deal->due_status = 2; // Negative due_amount
+            } elseif ($dueAmount == 0) {
+                $deal->due_status = 1; // Zero due_amount
+            } else {
+                $deal->due_status = 0; // Positive due_amount
+            }
+            return $deal;
+        });
+
+
+
+
+
         return view("admin.deals", compact('deals','teams','clients','sourceTypes','managers'));
     }
 
     public function index(Request $request){
-        $deals = Deal::with('payments')->where('user_id',Auth::id())->latest();
+        $deals = Deal::with('payments')
+        ->withSum('payments', 'payment_value')
+        ->where('user_id',Auth::id())->latest();
         $clients = Client::get();
         $sourceTypes =  SourceType::get();
 
@@ -114,10 +156,42 @@ class DealController extends Controller
                 $deals = $deals->where('name', 'like', '%' . $request->get('keyword') . '%');
             }
         }
-
+        if ($request->get('search_client_id')) {
+            $clientId=$request->get('search_client_id');
+            if (!empty($request->get('search_client_id'))) {
+                $deals = $deals->where('client_id',$clientId);
+            }
+        }
+        if ($request->get('search_source_type_id')) {
+            $sourceTypeId= $request->get('search_source_type_id');
+            if (!empty($request->get('search_source_type_id'))) {
+                $deals = $deals->where('source_type_id',$sourceTypeId);
+            }
+        }
 
 
         $deals = $deals->paginate(10);
+
+
+        $deals->getCollection()->transform(function ($deal) {
+            // Calculate due_amount as deal_value - sum of payment_value
+            $dueAmount = $deal->deal_value - $deal->payments_sum_payment_value;
+            $deal->due_amount = $dueAmount;
+            // Determine due_status based on due_amount
+            if ($dueAmount < 0) {
+                $deal->due_status = 2; // Negative due_amount
+            } elseif ($dueAmount == 0) {
+                $deal->due_status = 1; // Zero due_amount
+            } else {
+                $deal->due_status = 0; // Positive due_amount
+            }
+            return $deal;
+        });
+
+
+        // return response()->json($deals);
+
+
 
         return view("manager.deals.list", compact('deals','clients','sourceTypes'));
     }

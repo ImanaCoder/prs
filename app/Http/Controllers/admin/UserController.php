@@ -79,4 +79,11 @@ class UserController extends Controller
 
         return response()->json(['user'=>$user]);
     }
+
+    public function getUsersByTeamId($teamId, Request $request) {
+        $users = User::where('team_id',$teamId)->orderBy('name')->get();
+
+
+        return response()->json(['user'=>$users]);
+    }
 }

@@ -64,6 +64,8 @@
 
                                     <th>Deal Version</th>
                                     <th>Deal Value</th>
+                                    <th>Due Amount</th>
+
                                     <th>Payments</th>
                                     <th>Action</th>
                                   </tr>
@@ -97,6 +99,29 @@
                                           <td>{{ \Carbon\Carbon::parse($deal->due_date)->format('jS F, Y h:i A') }}</td>
                                           <td>{{ $deal->version }}</td>
                                           <td>{{ $deal->deal_value }}</td>
+                                          <td>
+                                            @php
+                                                $dueAmountFormatted = number_format($deal->due_amount, 2);
+                                                $dueStatusClass = '';
+
+                                                switch ($deal->due_status) {
+                                                    case 1:
+                                                        $dueStatusClass = 'text-success'; // Green color for due_status 0
+                                                        break;
+                                                    case 2:
+                                                        $dueStatusClass = 'text-danger'; // Red color for due_status 1
+                                                        break;
+                                                    case 0:
+                                                        $dueStatusClass = 'text-orange'; // Yellow color for due_status 2
+                                                        break;
+                                                    default:
+                                                        $dueStatusClass = '';
+
+                                                }
+                                            @endphp
+
+                                            <span class="{{ $dueStatusClass }}" style="font-weight:700">${{ $dueAmountFormatted }}</span>
+                                        </td>
                                           <td>
                                             @if ($deal->payments != null)
                                             <div class="d-flex justify-content-center align-items-center">
@@ -134,7 +159,7 @@
 
                                   @if($deal->payments->isNotEmpty())
                                   <tr class="sub-table" style="display: none;background-color:rgb(228, 168, 131)">
-                                      <td colspan="12">
+                                     <td colspan="13">
                                           <div class="table-responsive">
                                               <table class="table table-bordered">
                                                   <thead >
@@ -171,7 +196,8 @@
                                                             </td>
 
                                                               <td>
-                                                                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#approvePayment" onclick="approvePayment('{{ $payment->id }}')"><i class="fas fa-edit"></i></button>
+                                                                  <button class="btn btn-sm btn-primary" onclick="viewPayment('{{ $payment->id }}')"><i class="fas fa-eye"></i></button>
+                                                                  <button class="btn btn-sm btn-danger" onclick="deletePayment('{{ $payment->id }}')"><i class="fas fa-delete"></i></button>
 
                                                               </td>
                                                           </tr>
@@ -198,16 +224,16 @@
 
                   </div>
 
-                <div class="modal fade" id="approvePayment" tabindex="-1" role="dialog" aria-labelledby="approvePaymentLabel" aria-hidden="true">
+                <div class="modal fade" id="viewPayment" tabindex="-1" role="dialog" aria-labelledby="viewPaymentLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="approvePaymentLabel">Approve Payment <span id="payment-id"></span></h5>
+                                <h5 class="modal-title" id="viewPaymentLabel">Approve Payment <span id="payment-id"></span></h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <form id="approvePaymentForm">
+                            <form id="viewPaymentForm">
                                 <div class="modal-body">
                                     <div class="container mx-auto py-8">
                                         <div class=" col-md-12">
@@ -242,41 +268,76 @@
                                             </div>
 
                                             <!-- Verification Section -->
-                                            <div class="row mt-3 w-full col-md-12 rounded-lg shadow-lg p-6">
-                                                <div class="form-group col-md-6 col-12">
-                                                    <label for="status">Status</label>
-                                                    <select id="status" name="status" class="form-control">
-                                                        <option value="0">Rejected</option>
-                                                        <option value="1">Approved</option>
-                                                    </select>
-                                                </div>
+                                            <div class="row mt-3 w-full col-md-12 rounded-lg shadow-lg p-6" id="verification_form_group" style="display:none;">
                                                 <div class="form-group col-md-6">
-                                                    <label for="verification_remarks">Remarks</label>
-                                                    <textarea id="verification_remarks" name="verification_remarks" class="form-control" required></textarea>
+                                                    <label for="status">Status</label><br>
+                                                     <span id="status"></span>
+
                                                 </div>
+
                                                 <div class="form-group col-md-6">
-                                                    <input type="hidden" id="verification_receipt_id" name="verification_receipt_id" value="">
-                                                    <label for="verification_receipt">Verification Receipt</label>
-                                                    <div id="verification_receipt" class="dropzone dz-clickable">
-                                                        <div class="dz-message needsclick">
-                                                            <br>Drop files here or click to upload. <br><br>
-                                                        </div>
-                                                    </div>
+                                                    <label for="verification_remarks">Remarks</label><br>
+                                                    <span id="verification_remarks"></span>
                                                 </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="verified_by_id">Verified By</label><br>
+                                                    <span id="verified_by_id"></span>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="verified_at">Verified At</label><br>
+                                                    <span id="verified_at"></span>
+                                                </div>
+
                                                 <div class="form-group col-md-6">
                                                     <div class="d-flex justify-content-center align-items-center">
                                                         <img id="verification_receipt_image_path" src="" />
                                                     </div>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Save</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add this modal for confirming deletion  -->
+                <div class="modal fade" id="deletePaymentConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deletePaymentConfirmationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deletePaymentConfirmationModalLabel">Confirm Deletion</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this product?</p>
+                                <form id="paymentDeleteForm" action="">
+                                    <div class="form-group col-md-6 col-12">
+                                        <label for="payment_id">Payment Id</label>
+                                        <input readonly type="text" id="payment_id" name="payment_id" class="form-control" required>
+                                        <p></p>
+
+                                    </div>
+                                    <div class="form-group col-md-6 col-12">
+                                        <input type="text" id="delete" name="delete" class="form-control" required>
+                                        <p></p>
+
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -291,6 +352,38 @@
     @section('customJs')
         <script>
 
+            function deletePayment(id) {
+                var url = '{{ route('deals.destroy', "ID") }}';
+                var newUrl = url.replace("ID", id);
+                $('#payment_id').val($id);
+
+                // Show the delete confirmation modal
+                $('#deletePaymentConfirmationModal').modal('show');
+
+                // Handle the click on the "Delete" button in the modal
+                $("#editPaymentForm").submit(function(event){
+                    event.preventDefault();
+                    var element = $("#editPaymentForm");
+                    // Close the modal
+                    $('#deletePaymentConfirmationModal').modal('hide');
+
+                    // Perform the delete action
+                    $.ajax({
+                        url: newUrl,
+                        type: 'delete',
+                        data: element.serializeArray(),
+                        dataType: 'json',
+                        success: function(response) {
+                            $("button[type=submit]").prop('disabled', false);
+                            window.location.href = "{{ route('admins.deals') }}";
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    });
+                });
+            }
+
 
             // Example JavaScript specific to this page
             function toggleSubTable(button) {
@@ -299,19 +392,6 @@
 
                 if (subTable.classList.contains('sub-table')) {
                     subTable.style.display = subTable.style.display === 'none' ? 'table-row' : 'none';
-                }
-            }
-
-            function handleEditFieldError(fieldName, errors) {
-                var fieldElement = $('#edit-' + fieldName);
-                var errorElement = fieldElement.siblings('p');
-
-                if (errors[fieldName]) {
-                    fieldElement.addClass('is-invalid');
-                    errorElement.addClass('invalid-feedback').html(errors[fieldName][0]);
-                } else {
-                    fieldElement.removeClass('is-invalid');
-                    errorElement.removeClass('invalid-feedback').html('');
                 }
             }
 
@@ -351,9 +431,9 @@
                 return formattedDate;
             }
 
-            function approvePayment($id) {
+            function viewPayment($id) {
 
-                $('#approvePaymentForm')[0].reset(); // Reset the form before populating new data
+                $('#viewPaymentForm')[0].reset(); // Reset the form before populating new data
                 var url = '{{ route('payments.edit', ['id' => ':id']) }}'.replace(':id', $id);
                 // Make AJAX request to fetch client data
                 $.ajax({
@@ -366,8 +446,10 @@
                         document.getElementById('payment_remarks').textContent = response.payment.remarks;
                         document.getElementById('payment_id').textContent = response.payment.id;
                         document.getElementById('payment_date').textContent =timestampToDate(response.payment.payment_date);
-                        $('#verification_remarks').val(response.payment.verification_remarks);
-                        $('#status').val(response.payment.status);
+                        document.getElementById('verification_remarks').textContent =response.payment.verification_remarks;
+
+                        document.getElementById('verified_at').textContent =timestampToDate(response.payment.verified_at);
+
 
                         // Example imageUrl variable (replace with your dynamic URL)
                         var imageUrl = '{{ asset("storage/payments/") }}' +"/"+ response.payment.receipt_path;
@@ -381,8 +463,77 @@
                         } else {
                             console.error('Image element not found.');
                         }
-                                            // Show the edit modal
-                        $('#approvePayment').modal('show');
+
+
+
+                        var verificationFormGroup = document.getElementById('verification_form_group');
+
+                        if (response.payment.verified_by_id != null ) {
+                            document.getElementById('verified_by_id').textContent =response.payment.verified_by.name;
+                            verificationFormGroup.style.display = 'block';
+                        } else {
+                            verificationFormGroup.style.display = 'none';
+                        }
+
+
+                        // Example imageUrl variable (replace with your dynamic URL)
+                        var imageUrl = '{{ asset("storage/payments/") }}' +"/"+ response.payment.receipt_path;
+
+                        // Select the image element by its ID or another selector
+                        var imgElement = document.getElementById('receipt_image_path'); // Replace 'yourImgId' with your actual image element ID
+
+                        // Set the src attribute of the image element
+                        if (imgElement) {
+                            imgElement.src = imageUrl;
+                        } else {
+                            console.error('Image element not found.');
+                        }
+
+                        if(response.payment.verification_receipt_path != null){
+                            // Example verificationImageUrl variable (replace with your dynamic URL)
+                            var verificationImageUrl = '{{ asset("storage/payments/verification-receipts") }}' +"/"+ response.payment.verification_receipt_path;
+
+                            // Select the image element by its ID or another selector
+                            var imgElement1 = document.getElementById('verification_receipt_image_path'); // Replace 'yourImgId' with your actual image element ID
+
+                            // Set the src attribute of the image element
+                            if (imgElement1) {
+                                imgElement1.src = verificationImageUrl;
+                            } else {
+                                console.error('Image element not found.');
+                            }
+                        }
+
+                        var paymentStatus = response.payment.status; // Replace with actual value or fetch from API
+
+                        // Select the status icon placeholder element
+                        var statusIconElement = document.getElementById('status');
+
+                        // Function to set status icon based on payment status
+                        function setStatusIcon(status) {
+                            var iconHtml = '';
+
+                            // Determine which SVG icon to show based on payment status
+                            if (status == 1) {
+                                // Success icon
+                                iconHtml = '<svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                            } else if (status == 0) {
+                                // Error icon
+                                iconHtml = '<svg class="text-danger h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                            } else {
+                                // Warning or unknown status icon
+                                iconHtml = '<svg class="text-warning h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 2h12M6 2l6 6 6-6M6 2v6m12 0V2m0 18H6m0 0v-6m12 6v-6M6 22l6-6 6 6"></path></svg>';
+                            }
+
+                            // Update the status icon element with the generated icon HTML
+                            statusIconElement.innerHTML = iconHtml;
+                        }
+
+                        // Call the function to set the status icon based on the initial payment status
+                        setStatusIcon(paymentStatus);
+
+                        // Show the view modal
+                        $('#viewPayment').modal('show');
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.log('Error fetching client data:', errorThrown);
@@ -390,72 +541,7 @@
                 });
             }
 
-            const dropzone1 = $("#verification_receipt").dropzone({
-                init: function() {
-                    this.on('addedfile', function(file) {
-                        if (this.files.length > 1) {
-                            this.removeFile(this.files[0]);
-                        }
-                    })
-                    $("button[type=submit]").prop('disabled',true);
 
-                },
-                url: "{{ route('temp-images.create') }}",
-                maxFiles: 1,
-                paramName: 'image',
-                addRemoveLinks: true,
-                acceptedFiles: "image/jpeg,image/png,image/gif",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(file, response){
-                    $("#verification_receipt_id"). val(response.image_id);
-                    $("button[type=submit]").prop('disabled',false);
-
-                }
-            });
-
-
-            $("#approvePaymentForm").submit(function(event){
-                event.preventDefault();
-                var element = $("#approvePaymentForm");
-                $("button[type=submit]").prop('disabled',true);
-                var dealId=$('#payment_id').val();
-
-                $.ajax({
-                    url:'{{ route('payments.verify', ['id' => ':id']) }}'.replace(':id', dealId),
-                    type:'put',
-                    data: element.serializeArray(),
-                    dataType: 'json',
-                    success: function(response){
-                        $("button[type=submit]").prop('disabled',false);
-
-                        if(response["status"] == true) {
-                            $(".error").removeClass('invalid-feedback');
-                            $('input[type="text"], select').removeClass('is-invalid');
-                            window.location.href="{{ route('deals.index') }}";
-
-                        }else{
-
-                            var errors = response['errors'];
-                            console.log(errors);
-                            handleEditFieldError('name', errors);
-                            handleEditFieldError('client_id', errors);
-                            handleEditFieldError('source_type_id', errors);
-                            handleEditFieldError('work_type', errors);
-                            handleEditFieldError('deal_value', errors);
-                            handleEditFieldError('deal_date', errors);
-                            handleEditFieldError('due_date', errors);
-                            handleEditFieldError('remarks', errors);
-
-
-                        }
-                    },
-                    error: function(jqXHR, exception){
-                        console.log("केहि गलति भयो!");
-                    }
-                });
-            });
 
 
             // jQuery document ready function to ensure DOM is fully loaded

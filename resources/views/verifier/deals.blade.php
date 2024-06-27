@@ -72,6 +72,8 @@
 
                                     <th>Deal Version</th>
                                     <th>Deal Value</th>
+                                    <th>Due Amount</th>
+
                                     <th>Payments</th>
                                     <th>Action</th>
                                   </tr>
@@ -105,6 +107,29 @@
                                           <td>{{ \Carbon\Carbon::parse($deal->due_date)->format('jS F, Y h:i A') }}</td>
                                           <td>{{ $deal->version }}</td>
                                           <td>{{ $deal->deal_value }}</td>
+                                          <td>
+                                            @php
+                                                $dueAmountFormatted = number_format($deal->due_amount, 2);
+                                                $dueStatusClass = '';
+
+                                                switch ($deal->due_status) {
+                                                    case 1:
+                                                        $dueStatusClass = 'text-success'; // Green color for due_status 0
+                                                        break;
+                                                    case 2:
+                                                        $dueStatusClass = 'text-danger'; // Red color for due_status 1
+                                                        break;
+                                                    case 0:
+                                                        $dueStatusClass = 'text-orange'; // Yellow color for due_status 2
+                                                        break;
+                                                    default:
+                                                        $dueStatusClass = '';
+
+                                                }
+                                            @endphp
+
+                                            <span class="{{ $dueStatusClass }}" style="font-weight:700">${{ $dueAmountFormatted }}</span>
+                                        </td>
                                           <td>
                                             @if ($deal->payments != null)
                                             <div class="d-flex justify-content-center align-items-center">

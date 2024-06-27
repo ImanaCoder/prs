@@ -9,8 +9,9 @@
         <form action="" id="dashboardForm">
             <div class="max-w-8xl mx-xl-5 mx-2">
                 <div class="d-flex justify-content-end w-full">
+
                     <select id="team_id" name="team_id" class="form-control mb-2" style="width:200px">
-                        <option value="">All</option>
+                        <option value="">All Teams</option>
                         @foreach ($teams as $team)
                             <option value="{{ $team->id }}" {{ Request::get('team_id') == $team->id ? 'selected' : '' }}>
                                 {{ $team->name }}
@@ -18,9 +19,9 @@
                         @endforeach
                     </select>
                     <select id="manager_id" name="manager_id" class="form-control mb-2" style="width:200px">
-                        <option value="">All</option>
+                        <option value="">All Managers</option>
                         @foreach ($managers as $manager)
-                            <option value="{{ $team->id }}" {{ Request::get('manager_id') == $manager->id ? 'selected' : '' }}>
+                            <option value="{{ $manager->id }}" {{ Request::get('manager_id') == $manager->id ? 'selected' : '' }}>
                                 {{ $manager->name }}
                             </option>
                         @endforeach
@@ -31,14 +32,15 @@
                     <section>
                         <div class="row ">
                             <div class="col-md-6 mb-2">
-                                <div class="card" style="background-color:bisque">
-                                    <div class="card-body">
-                                        <div class="card-header">
-                                            <div class="card-title">
-                                                <h3 class="card-title">Today Total Sales</h3>
-                                            </div>
-
+                                <div class="card" >
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <h3 class="card-title">Today Total Sales</h3>
                                         </div>
+
+                                    </div>
+                                    <div class="card-body">
+
                                         <div class="table-responsive overflow-auto">
                                             <table class="table table-bordered">
                                                 <thead>
@@ -48,6 +50,7 @@
                                                         <th>Client Name</th>
                                                         <th>Work Type</th>
                                                         <th>Deal Value</th>
+                                                        <th>Due Amount</th>
                                                         <th>Deal Date</th>
                                                         <th>Due Date</th>
                                                         <th>Remarks</th>
@@ -66,6 +69,30 @@
                                                         <td>{{ $deal->client->name }}</td>
                                                         <td>{{ $deal->work_type }}</td>
                                                         <td>${{ number_format($deal->deal_value, 2) }}</td>
+                                                        <td>
+                                                            @php
+                                                                $dueAmountFormatted = number_format($deal->due_amount, 2);
+                                                                $dueStatusClass = '';
+
+                                                                switch ($deal->due_status) {
+                                                                    case 1:
+                                                                        $dueStatusClass = 'text-success'; // Green color for due_status 0
+                                                                        break;
+                                                                    case 2:
+                                                                        $dueStatusClass = 'text-danger'; // Red color for due_status 1
+                                                                        break;
+                                                                    case 0:
+                                                                        $dueStatusClass = 'text-orange'; // Yellow color for due_status 2
+                                                                        break;
+                                                                    default:
+                                                                        $dueStatusClass = '';
+
+                                                                }
+                                                            @endphp
+
+                                                            <span class="{{ $dueStatusClass }}" style="font-weight:700">${{ $dueAmountFormatted }}</span>
+                                                        </td>
+
                                                         <td>{{ date('Y-m-d', strtotime($deal->deal_date)) }}</td>
                                                         <td>{{ date('Y-m-d', strtotime($deal->due_date)) }}</td>
                                                         <td>{{ $deal->remarks }}</td>
@@ -78,25 +105,27 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
-                                            <div class="d-flex justify-content-center">
-                                                {{ $salesToday->links() }}
-                                            </div>
+
                                         </div>
 
+                                    </div>
+                                    <div class="card-footer clearfix">
+                                        {{ $salesToday->links() }}
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-2"  >
-                                <div class="card" style="background-color:rgb(172, 156, 211)">
-                                    <div class="card-body">
-                                        <div class="card-header">
-                                            <div class="card-title">
-                                                <h3 class="card-title">Custom Total Sales</h3>
-                                            </div>
-                                            <div class="card-tools" >
-                                                <input type="text" id="daterange_textbox" name="sales_daterange" class="form-control" readonly value="{{ request()->input('sales_daterange', date('Y-m-d')) }}" style="width:200px" />
-                                            </div>
+                                <div class="card" style="background-color:bisque">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <h3 class="card-title">Custom Total Sales</h3>
                                         </div>
+                                        <div class="card-tools" >
+                                            <input type="text" id="daterange_textbox" name="sales_daterange" class="form-control" readonly value="{{ request()->input('sales_daterange', date('Y-m-d')) }}" style="width:200px" />
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+
 
                                         <div class="table-responsive overflow-auto">
                                             <table class="table table-bordered">
@@ -107,6 +136,7 @@
                                                         <th>Client Name</th>
                                                         <th>Work Type</th>
                                                         <th>Deal Value</th>
+                                                        <th>Due Amount</th>
                                                         <th>Deal Date</th>
                                                         <th>Due Date</th>
                                                         <th>Remarks</th>
@@ -125,7 +155,29 @@
                                                         <td>{{ $deal->client->name }}</td>
                                                         <td>{{ $deal->work_type }}</td>
                                                         <td>${{ number_format($deal->deal_value, 2) }}</td>
-                                                        <td>{{ date('Y-m-d', strtotime($deal->deal_date)) }}</td>
+                                                        <td>
+                                                            @php
+                                                                $dueAmountFormatted = number_format($deal->due_amount, 2);
+                                                                $dueStatusClass = '';
+
+                                                                switch ($deal->due_status) {
+                                                                    case 1:
+                                                                        $dueStatusClass = 'text-success'; // Green color for due_status 0
+                                                                        break;
+                                                                    case 2:
+                                                                        $dueStatusClass = 'text-danger'; // Red color for due_status 1
+                                                                        break;
+                                                                    case 0:
+                                                                        $dueStatusClass = 'text-orange'; // Yellow color for due_status 2
+                                                                        break;
+                                                                    default:
+                                                                        $dueStatusClass = '';
+                                                                }
+                                                            @endphp
+
+                                                            <span style="font-weight: 700" class="{{ $dueStatusClass }}">${{ $dueAmountFormatted }}</span>
+                                                        </td>
+                                                                                                                <td>{{ date('Y-m-d', strtotime($deal->deal_date)) }}</td>
                                                         <td>{{ date('Y-m-d', strtotime($deal->due_date)) }}</td>
                                                         <td>{{ $deal->remarks }}</td>
                                                         <td>{{ $deal->deal_version }}</td>
@@ -137,11 +189,12 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
-                                            <div class="d-flex justify-content-center">
-                                                {{ $salesThisMonth->links() }}
-                                            </div>
+
                                         </div>
 
+                                    </div>
+                                    <div class="card-footer clearfix">
+                                        {!! $salesThisMonth->links() !!}
                                     </div>
                                 </div>
                             </div>

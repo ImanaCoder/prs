@@ -14,13 +14,29 @@
                         <button class="btn btn-primary mb-3 " style="font-size:12px;" data-toggle="modal" data-target="#addModal">Add Deal</button>
                     </div>
                     <div class="card">
-                        <form action="" method="get">
+                        <form action="" method="get" id="searchForm">
                             <div class="card-header">
                                 <div class="card-title">
                                     <button type="button" onclick="window.location.href='{{ route('deals.index') }}' " class="btn btn-default btn-sm">Reset</button>
                                 </div>
                                 <div class="card-tools">
-                                    <div class="input-group input-group" style="width: 250px;">
+                                    <div class="input-group input-group" style="width: 100%;">
+                                        <select id="search_client_id" name="search_client_id" class="form-control" style="width:200px">
+                                            <option value="">All Clients</option>
+                                            @foreach ($clients as $client)
+                                                <option value="{{ $client->id }}" {{ Request::get('search_client_id') == $client->id ? 'selected' : '' }}>
+                                                    {{ $client->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <select id="search_source_type_id" name="search_source_type_id" class="form-control" style="width:200px">
+                                            <option value="">All SourceTypes</option>
+                                            @foreach ($sourceTypes as $sourceType)
+                                                <option value="{{ $sourceType->id }}" {{ Request::get('search_source_type_id') == $sourceType->id ? 'selected' : '' }}>
+                                                    {{ $sourceType->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                         <input value="{{ Request::get('keyword') }}" type="text" name="keyword" class="form-control float-right" placeholder="Search" style="border-color:#ddd;">
 
                                         <div class="input-group-append">
@@ -28,7 +44,7 @@
                                             <i class="fas fa-search"></i>
                                           </button>
                                         </div>
-                                      </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -48,6 +64,8 @@
 
                                     <th>Deal Version</th>
                                     <th>Deal Value</th>
+                                    <th>Due Amount</th>
+
                                     <th>Payments</th>
                                     <th>Action</th>
                                   </tr>
@@ -81,6 +99,29 @@
                                           <td>{{ $deal->version }}</td>
                                           <td>{{ $deal->deal_value }}</td>
                                           <td>
+                                            @php
+                                                $dueAmountFormatted = number_format($deal->due_amount, 2);
+                                                $dueStatusClass = '';
+
+                                                switch ($deal->due_status) {
+                                                    case 1:
+                                                        $dueStatusClass = 'text-success'; // Green color for due_status 0
+                                                        break;
+                                                    case 2:
+                                                        $dueStatusClass = 'text-danger'; // Red color for due_status 1
+                                                        break;
+                                                    case 0:
+                                                        $dueStatusClass = 'text-orange'; // Yellow color for due_status 2
+                                                        break;
+                                                    default:
+                                                        $dueStatusClass = '';
+
+                                                }
+                                            @endphp
+
+                                            <span class="{{ $dueStatusClass }}" style="font-weight:700">${{ $dueAmountFormatted }}</span>
+                                        </td>
+                                          <td>
                                             @if ($deal->payments != null)
                                             <div class="d-flex justify-content-center align-items-center">
                                                 @foreach ($deal->payments as $index => $payment)
@@ -94,6 +135,11 @@
                                                             <svg class="text-success-500 h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                             </svg>
+                                                        @else
+                                                        <svg class="text-info h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8z"></path>
+                                                          </svg>
+
                                                         @endif
                                                         <span class="mr-4">{{ getOrdinal($index + 1) }}</span>
 
@@ -117,7 +163,7 @@
 
                                   @if($deal->payments->isNotEmpty())
                                   <tr class="sub-table" style="display: none;background-color:rgb(203, 233, 175)">
-                                      <td colspan="12">
+                                     <td colspan="13">
                                           <div class="table-responsive">
                                               <table class="table table-bordered">
                                                   <thead class="thead-light">
@@ -868,7 +914,7 @@
                             } else {
                                 console.error('Image element not found.');
                             }
-                                                  // Show the edit modal
+                            // Show the edit modal
                             $('#editPayment').modal('show');
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
@@ -917,6 +963,19 @@
                     }
                 });
             });
+
+
+            // jQuery document ready function to ensure DOM is fully loaded
+            $(document).ready(function() {
+                // Bind change event to both select elements
+                $('#search_source_type_id, #search_client_id').change(function() {
+                    // Submit the form with id 'searchForm'
+                    $('#searchForm').submit();
+                });
+            });
+
+
+
         </script>
     @endsection
 </x-app-layout>

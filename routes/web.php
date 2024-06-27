@@ -65,6 +65,8 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
         Route::get('/users', [UserController::class,'index'])->name('users.index');
         Route::post('/users/store', [UserController::class,'store'])->name('users.store');
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::get('/users/{teamId}', [UserController::class, 'getUsersByTeamId'])->name('users.teamId');
+
 
 
     });
@@ -81,7 +83,7 @@ Route::group(['middleware' => ['auth', 'role:verifier']], function () {
     });
 });
 
-Route::group(['middleware' => ['auth', 'role:sales_manager|verifier']], function () {
+Route::group(['middleware' => ['auth', 'role:sales_manager|verifier|admin']], function () {
     Route::get('/payments/{id}/edit', [PaymentController::class,'edit'])->name('payments.edit');
 
 });
